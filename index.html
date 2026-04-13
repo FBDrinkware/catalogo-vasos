@@ -126,7 +126,7 @@
     <!-- Catálogo Principal -->
     <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-8">
         <div class="col-span-full text-center py-20 text-gray-700 animate-pulse font-mono text-xs uppercase tracking-widest">
-            SINCRONIZANDO INVENTARIO CON GOOGLE SHEETS...
+            CARGANDO CATÁLOGO...
         </div>
     </main>
  
@@ -383,7 +383,7 @@
                 }
             } catch (e) { 
                 console.error('Error cargando productos:', e); 
-                document.getElementById('catalogo').innerHTML = '<div class="col-span-full text-center py-20 text-red-500 font-bold">Error al conectar con el inventario. Revisa el enlace de Google Sheets.</div>';
+                document.getElementById('catalogo').innerHTML = '<div class="col-span-full text-center py-20 text-red-500 font-bold">Error al conectar con el inventario.</div>';
             }
         }
  
