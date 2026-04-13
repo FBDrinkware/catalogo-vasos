@@ -100,17 +100,6 @@
         .aviso-factura strong {
             color: #ea580c;
         }
- 
-        /* Modal 3D Viewer */
-        #modal-3d {
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            opacity: 0;
-            visibility: hidden;
-        }
-        #modal-3d.show {
-            opacity: 1;
-            visibility: visible;
-        }
     </style>
 </head>
 <body class="bg-gray-950 text-gray-100 pb-24">
@@ -126,7 +115,7 @@
     <!-- Catálogo Principal -->
     <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-8">
         <div class="col-span-full text-center py-20 text-gray-700 animate-pulse font-mono text-xs uppercase tracking-widest">
-            CARGANDO CATÁLOGO...
+            SINCRONIZANDO INVENTARIO CON GOOGLE SHEETS...
         </div>
     </main>
  
@@ -148,20 +137,6 @@
             </svg>
         </button>
         <img id="imagen-ampliada" src="" alt="Vista ampliada" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl border-2 border-gray-800 transition-all" onclick="event.stopPropagation()">
-    </div>
- 
-    <!-- Modal Visor 3D (Sketchfab embed) -->
-    <div id="modal-3d" class="fixed inset-0 bg-black/98 z-[300] flex flex-col items-center justify-center p-4 backdrop-blur-sm" onclick="cerrar3D(event)">
-        <button onclick="cerrar3D()" class="absolute top-6 right-6 text-white/70 hover:text-white z-50 bg-gray-900/50 p-2 rounded-full transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-        <h3 id="titulo-3d" class="text-white font-black text-lg uppercase tracking-tight mb-4"></h3>
-        <div class="w-full max-w-3xl aspect-video rounded-2xl overflow-hidden border-2 border-gray-800 shadow-2xl bg-gray-900" onclick="event.stopPropagation()">
-            <iframe id="iframe-3d" src="" class="w-full h-full" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen allow="autoplay; fullscreen; xr-spatial-tracking"></iframe>
-        </div>
-        <p class="text-gray-500 text-[10px] mt-3 uppercase tracking-widest font-bold">Arrastra para rotar · Scroll para zoom</p>
     </div>
  
     <!-- Modal del Carrito / Formulario -->
@@ -278,32 +253,62 @@
             return result;
         }
  
+        // Limpiar valor de celda: quita comillas residuales y extrae URL de HYPERLINK()
+        function limpiarCelda(valor) {
+            if (!valor) return '';
+            let v = valor.replace(/^"+|"+$/g, '').trim();
+            // Si Sheets exporta =HYPERLINK("url","label"), extraer la URL
+            const hyperlinkMatch = v.match(/^=?HYPERLINK\s*\(\s*"([^"]+)"/i);
+            if (hyperlinkMatch) return hyperlinkMatch[1];
+            return v;
+        }
+ 
         // ============================================
         // CARGA DE PRODUCTOS
         // ============================================
         async function cargarProductos() {
             try {
                 const response = await fetch(SHEET_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 const data = await response.text();
+                console.log('CSV raw (primeros 500 chars):', data.substring(0, 500));
+                
                 const filas = data.split(/\r?\n/).slice(1);
                 const contenedor = document.getElementById('catalogo');
                 contenedor.innerHTML = '';
+                let productosRendered = 0;
  
-                filas.forEach(fila => {
+                filas.forEach((fila, idx) => {
                     if (!fila.trim()) return;
-                    const col = parseCSVLine(fila);
-                    if (col.length < 5) return;
+                    
+                    try {
+                        const col = parseCSVLine(fila);
+                        console.log(`Fila ${idx + 2} raw:`, fila.substring(0, 120));
+                        console.log(`Fila ${idx + 2} parsed (${col.length} cols):`, col);
+                        
+                        if (col.length < 5) {
+                            console.warn(`Fila ${idx + 2} ignorada: solo ${col.length} columnas`);
+                            return;
+                        }
  
-                    // Mapeo de Columnas:
+                    // Mapeo de Columnas (con limpieza):
                     // A: SKU | B: Nombre | C: Precio | D: Imagen | E: Capacidad | F: Estatus | G: Oferta | H: Link3D
-                    const sku = col[0] || '';
-                    const nombre = col[1] || '';
-                    const precio = col[2] || '';
-                    const imagenUrl = col[3] || '';
-                    const capacidad = col[4] || '';
-                    const estatusRaw = col[5] || '';
-                    const oferta = col[6] || '';
-                    const link3d = col[7] || '';
+                    const sku = limpiarCelda(col[0]);
+                    const nombre = limpiarCelda(col[1]);
+                    const precio = limpiarCelda(col[2]);
+                    const imagenUrl = limpiarCelda(col[3]);
+                    const capacidad = limpiarCelda(col[4]);
+                    const estatusRaw = limpiarCelda(col[5]);
+                    const oferta = limpiarCelda(col[6]);
+                    const link3dRaw = limpiarCelda(col[7]);
+                    // Columna H: solo el código corto de Sketchfab (ej: pIBE9)
+                    // Se construye la URL completa automáticamente
+                    const link3d = link3dRaw ? `https://skfb.ly/${link3dRaw}` : '';
+ 
+                    // Debug: verificar parseo (puedes quitar esto después)
+                    console.log('Producto:', { sku, nombre, precio, capacidad, estatus: estatusRaw, link3dRaw, link3d, totalCols: col.length });
  
                     const estatus = estatusRaw;
                     const isAgotado = estatus.toLowerCase().includes('agotado');
@@ -376,14 +381,19 @@
                             </div>
                         </div>
                     `;
+                        productosRendered++;
+                    } catch (rowErr) {
+                        console.error(`Error parseando fila ${idx + 2}:`, rowErr, 'Raw:', fila);
+                    }
                 });
  
-                if (contenedor.innerHTML === '') {
+                console.log(`Total productos renderizados: ${productosRendered}`);
+                if (productosRendered === 0) {
                     contenedor.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500 font-bold">No se encontraron productos en el inventario.</div>';
                 }
             } catch (e) { 
                 console.error('Error cargando productos:', e); 
-                document.getElementById('catalogo').innerHTML = '<div class="col-span-full text-center py-20 text-red-500 font-bold">Error al conectar con el inventario.</div>';
+                document.getElementById('catalogo').innerHTML = '<div class="col-span-full text-center py-20 text-red-500 font-bold">Error al conectar con el inventario. Revisa el enlace de Google Sheets.</div>';
             }
         }
  
@@ -407,54 +417,17 @@
         document.addEventListener('keydown', (e) => { 
             if (e.key === 'Escape') {
                 cerrarImagen(); 
-                cerrar3D();
             }
         });
  
         // ============================================
-        // VISOR 3D (SKETCHFAB EMBED)
+        // VISOR 3D (SKETCHFAB)
         // ============================================
-        // Formatos soportados en columna H:
-        //   - URL de modelo Sketchfab: https://sketchfab.com/3d-models/nombre-del-modelo-abc123
-        //     Se convierte automáticamente a embed: https://sketchfab.com/models/abc123/embed
-        //   - URL de embed directa: https://sketchfab.com/models/abc123/embed
-        //   - Cualquier otra URL se abre como iframe directamente
-        function obtenerEmbedUrl(url) {
-            // Si ya es un embed de Sketchfab, usarlo tal cual
-            if (url.includes('sketchfab.com/models/') && url.includes('/embed')) {
-                return url;
-            }
-            // Si es un link de modelo de Sketchfab, extraer el ID y generar embed
-            const sketchfabMatch = url.match(/sketchfab\.com\/3d-models\/[^\/]+-([a-f0-9]{32})/i);
-            if (sketchfabMatch) {
-                return `https://sketchfab.com/models/${sketchfabMatch[1]}/embed?autostart=1&ui_theme=dark`;
-            }
-            // Si es un link corto de Sketchfab con solo el ID
-            const shortMatch = url.match(/sketchfab\.com\/models\/([a-f0-9]{32})/i);
-            if (shortMatch) {
-                return `https://sketchfab.com/models/${shortMatch[1]}/embed?autostart=1&ui_theme=dark`;
-            }
-            // Cualquier otra URL, intentar cargarla como iframe
-            return url;
-        }
- 
+        // La columna H contiene solo el código corto de Sketchfab (ej: pIBE9)
+        // El código construye https://skfb.ly/pIBE9 automáticamente
+        // Al hacer clic, se abre Sketchfab en una nueva pestaña con el visor 3D interactivo
         function abrir3D(url, nombre) {
-            const modal = document.getElementById('modal-3d');
-            const iframe = document.getElementById('iframe-3d');
-            const titulo = document.getElementById('titulo-3d');
-            titulo.textContent = nombre;
-            iframe.src = obtenerEmbedUrl(url);
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
- 
-        function cerrar3D(event) {
-            if (event && event.target !== event.currentTarget) return;
-            const modal = document.getElementById('modal-3d');
-            const iframe = document.getElementById('iframe-3d');
-            modal.classList.remove('show');
-            iframe.src = ''; // Detener el visor 3D al cerrar
-            document.body.style.overflow = '';
+            window.open(url, '_blank');
         }
  
         // ============================================
