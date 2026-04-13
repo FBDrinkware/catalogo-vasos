@@ -46,6 +46,16 @@
             display: flex; align-items: center; gap: 4px;
         }
         .badge-3d:hover { transform: scale(1.1); box-shadow: 0 4px 12px rgba(24,66,115,0.7); }
+        .badge-ficha {
+            position: absolute; top: 10px; left: 10px; background: rgba(24,66,115,0.85);
+            color: white; padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase;
+            z-index: 20; cursor: pointer; transition: transform 0.2s, background 0.2s;
+            display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px);
+        }
+        .badge-ficha:hover { transform: scale(1.1); background: rgba(24,66,115,1); }
+        /* Modal ficha técnica */
+        #modal-ficha { transition: opacity 0.3s ease, visibility 0.3s ease; opacity: 0; visibility: hidden; }
+        #modal-ficha.show { opacity: 1; visibility: visible; }
         .aviso-factura {
             background: linear-gradient(135deg, rgba(24,66,115,0.1), rgba(24,66,115,0.05));
             border: 1px solid rgba(24,66,115,0.3); border-radius: 12px; padding: 12px;
@@ -102,6 +112,25 @@
         <img id="imagen-ampliada" src="" alt="" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl border-2 border-gray-700" onclick="event.stopPropagation()">
     </div>
 
+    <!-- Modal Ficha Técnica -->
+    <div id="modal-ficha" class="fixed inset-0 bg-black/95 z-[300] flex flex-col items-center justify-center p-4 backdrop-blur-sm" onclick="cerrarFicha()">
+        <button class="absolute top-6 right-6 text-white/70 hover:text-white z-50 bg-gray-900/50 p-2 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+        <h3 id="ficha-titulo" class="text-white font-black text-lg uppercase tracking-tight mb-4"></h3>
+        <img id="ficha-imagen" src="" alt="Ficha técnica" class="max-w-full max-h-[80vh] rounded-2xl shadow-2xl border-2 border-gray-700" onclick="event.stopPropagation()">
+        <!-- Navegación entre fichas -->
+        <div class="flex items-center gap-4 mt-4" onclick="event.stopPropagation()">
+            <button onclick="navegarFicha(-1)" class="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <span id="ficha-counter" class="text-white/60 text-xs font-bold uppercase tracking-widest"></span>
+            <button onclick="navegarFicha(1)" class="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </button>
+        </div>
+    </div>
+
     <div id="modal-carrito" class="fixed inset-0 bg-black/90 hidden z-[200] p-4 flex items-center justify-center backdrop-blur-lg">
         <div class="bg-white w-full max-w-lg rounded-[2rem] p-6 md:p-8 border border-fb-light shadow-2xl overflow-y-auto max-h-[90vh]">
             <h2 class="text-2xl font-black mb-6 text-fb-dark tracking-tighter uppercase italic border-b border-fb-light pb-2">Tu Pedido</h2>
@@ -111,7 +140,7 @@
                     <span class="text-xs font-black text-fb-mid uppercase tracking-widest">Subtotal estimado</span>
                     <span id="subtotal-monto" class="text-xl font-black text-fb-dark">$0</span>
                 </div>
-                <p class="text-[9px] text-fb-silver mt-1 uppercase tracking-wider">*Incluye una personalización (un logo - logo extra $10 MXN por pieza). Envío gratis a partir de 25 pzas. Cambios sujetos a disponibilidad sin previo aviso. La cotización final será enviada vía WhatsApp por parte de nuestros agentes</p>
+                <p class="text-[9px] text-fb-silver mt-1 uppercase tracking-wider">*Incluye una personalización (un logo). Envío gratis a partir de 50 pzas. Cambios sujetos a disponibilidad sin previo aviso.</p>
             </div>
             <div class="bg-fb-cream p-5 md:p-6 rounded-2xl border border-fb-light space-y-4 mb-6">
                 <div>
@@ -276,11 +305,14 @@
                 const badgeOferta = (p.oferta && !isAgotado) ? `<div class="oferta-tag">${p.oferta}</div>` : '';
                 const badgeUltimas = (isUltimas && !isAgotado) ? `<p class="badge-ultimas mt-1">⚠️ Últimas piezas</p>` : '';
                 const badge3D = (p.link3d && !isAgotado) ? `<button class="badge-3d" onclick="event.stopPropagation(); window.open('${p.link3d.replace(/'/g,"\\'")}','_blank')" title="Ver modelo 3D"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg>VER 3D</button>` : '';
+                const safeCapacidad = p.capacidad.replace(/'/g, "\\'");
+                const tieneFicha = getFichaUrl(p.capacidad);
+                const badgeFicha = (tieneFicha && !isAgotado) ? `<button class="badge-ficha" onclick="event.stopPropagation(); abrirFicha('${safeCapacidad}')" title="Ver ficha técnica"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>FICHA</button>` : '';
 
                 cont.innerHTML += `
                 <div class="group relative bg-white border border-fb-light rounded-2xl overflow-hidden flex flex-col transition-all hover:border-fb-mid hover:shadow-xl ${isAgotado ? 'producto-agotado' : ''}">
                     <div class="h-44 md:h-56 bg-fb-cream overflow-hidden relative ${!isAgotado ? 'cursor-zoom-in' : ''}" onclick="${!isAgotado ? `abrirImagen('${safeImg}','${safeNombre}')` : ''}">
-                        ${overlayAgotado}${badgeOferta}${badge3D}
+                        ${overlayAgotado}${badgeOferta}${badge3D}${badgeFicha}
                         <img src="${p.imagenUrl}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/400?text=FB+Drinkware'" class="w-full h-full object-cover transform transition-transform duration-500 ${!isAgotado ? 'group-hover:scale-110' : ''}" loading="lazy">
                         ${!isAgotado ? `<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg></div>` : ''}
                     </div>
@@ -309,7 +341,59 @@
             document.body.style.overflow = 'hidden';
         }
         function cerrarImagen() { document.getElementById('modal-imagen').classList.remove('show'); document.body.style.overflow = ''; }
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarImagen(); });
+        document.addEventListener('keydown', e => { 
+            if (e.key === 'Escape') { cerrarImagen(); cerrarFicha(); }
+            if (e.key === 'ArrowLeft' && document.getElementById('modal-ficha').classList.contains('show')) navegarFicha(-1);
+            if (e.key === 'ArrowRight' && document.getElementById('modal-ficha').classList.contains('show')) navegarFicha(1);
+        });
+
+        // ============================================
+        // FICHAS TÉCNICAS POR OZ
+        // ============================================
+        const FICHAS_TECNICAS = [
+            { oz: '3 Oz',  label: '3 Oz / ~89 ml',   img: 'https://i.ibb.co/tp9S6m99/3-oz-ficha-t-cnica.jpg' },
+            { oz: '12 Oz', label: '12 Oz / ~355 ml',  img: 'https://i.ibb.co/XrCBVnJ3/12-oz-ficha-t-cnica.jpg' },
+            { oz: '14 Oz', label: '14 Oz / ~415 ml',  img: 'https://i.ibb.co/FkxY5HSf/14-oz-ficha-t-cnica.jpg' },
+            { oz: '20 Oz', label: '20 Oz / ~592 ml',  img: 'https://i.ibb.co/7J4CvnY9/20-oz-ficha-t-cnica.jpg' },
+            { oz: '23 Oz', label: '23 Oz / ~681 ml',  img: 'https://i.ibb.co/VWbpNBLC/23-oz-ficha-t-cnica.jpg' },
+            { oz: '27 Oz', label: '27 Oz / ~799 ml',  img: 'https://i.ibb.co/8nDy27ys/27-oz-ficha-t-cnica.jpg' },
+            { oz: '32 Oz', label: '32 Oz / ~947 ml',  img: 'https://i.ibb.co/VY8vrNsJ/32-oz-ficha-t-cnica.jpg' },
+            { oz: '40 Oz', label: '40 Oz / ~1183 ml', img: 'https://i.ibb.co/JDr7zyh/40-oz-ficha-t-cnica.jpg' },
+        ];
+        let fichaActualIdx = 0;
+
+        function getFichaUrl(capacidad) {
+            // Busca coincidencia flexible: "27 Oz", "27oz", "27 oz", etc.
+            const num = parseInt(capacidad);
+            if (isNaN(num)) return null;
+            return FICHAS_TECNICAS.find(f => parseInt(f.oz) === num) || null;
+        }
+
+        function abrirFicha(capacidad) {
+            const ficha = getFichaUrl(capacidad);
+            if (!ficha) return;
+            fichaActualIdx = FICHAS_TECNICAS.indexOf(ficha);
+            mostrarFicha();
+            document.getElementById('modal-ficha').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function mostrarFicha() {
+            const ficha = FICHAS_TECNICAS[fichaActualIdx];
+            document.getElementById('ficha-titulo').textContent = `Ficha Técnica — ${ficha.label}`;
+            document.getElementById('ficha-imagen').src = ficha.img;
+            document.getElementById('ficha-counter').textContent = `${fichaActualIdx + 1} / ${FICHAS_TECNICAS.length}`;
+        }
+
+        function navegarFicha(dir) {
+            fichaActualIdx = (fichaActualIdx + dir + FICHAS_TECNICAS.length) % FICHAS_TECNICAS.length;
+            mostrarFicha();
+        }
+
+        function cerrarFicha() { 
+            document.getElementById('modal-ficha').classList.remove('show'); 
+            document.body.style.overflow = ''; 
+        }
 
         // Helper: devuelve el HTML de controles para una tarjeta del catálogo
         function getCatalogoControles(sku, safeNombre, precioNum) {
