@@ -293,7 +293,9 @@
                         ${badgeUltimas}
                         <div class="flex items-center justify-between mt-auto pt-4 border-t border-fb-light/50 mt-4">
                             <span class="text-lg md:text-xl font-black text-fb-dark">$${p.precio}</span>
-                            <button onclick="agregar('${p.sku}','${safeNombre}',${p.precioNum})" class="bg-fb-dark text-white text-[9px] md:text-[10px] font-black px-4 py-2 rounded-xl hover:bg-fb-mid transition-all transform active:scale-95 ${isAgotado ? 'hidden' : ''}">+ AÑADIR</button>
+                            <div id="ctrl-${p.sku}" class="${isAgotado ? 'hidden' : ''}">
+                                ${getCatalogoControles(p.sku, safeNombre, p.precioNum)}
+                            </div>
                         </div>
                     </div>
                 </div>`;
@@ -309,6 +311,46 @@
         function cerrarImagen() { document.getElementById('modal-imagen').classList.remove('show'); document.body.style.overflow = ''; }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarImagen(); });
 
+        // Helper: devuelve el HTML de controles para una tarjeta del catálogo
+        function getCatalogoControles(sku, safeNombre, precioNum) {
+            const item = carrito.find(x => x.sku === sku);
+            if (!item) {
+                return `<button onclick="agregar('${sku}','${safeNombre}',${precioNum})" class="bg-fb-dark text-white text-[9px] md:text-[10px] font-black px-4 py-2 rounded-xl hover:bg-fb-mid transition-all transform active:scale-95">+ AÑADIR</button>`;
+            }
+            return `<div class="flex items-center gap-1.5">
+                <button onclick="cambiarCantCat('${sku}',-1)" class="text-fb-silver hover:text-fb-dark bg-fb-cream w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">−</button>
+                <input type="number" class="cant-input" style="width:40px;font-size:10px;" value="${item.cant}" min="1" onchange="setCantCat('${sku}',this.value)" onclick="this.select()">
+                <button onclick="cambiarCantCat('${sku}',1)" class="text-fb-silver hover:text-fb-dark bg-fb-cream w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">+</button>
+            </div>`;
+        }
+
+        // Sincronizar controles del catálogo con el carrito
+        function sincronizarCatalogo() {
+            todosLosProductos.forEach(p => {
+                const el = document.getElementById(`ctrl-${p.sku}`);
+                if (!el || el.classList.contains('hidden')) return;
+                const safeNombre = p.nombre.replace(/'/g, "\\'");
+                el.innerHTML = getCatalogoControles(p.sku, safeNombre, p.precioNum);
+            });
+        }
+
+        function cambiarCantCat(sku, delta) {
+            const idx = carrito.findIndex(x => x.sku === sku);
+            if (idx === -1) return;
+            carrito[idx].cant += delta;
+            if (carrito[idx].cant <= 0) carrito.splice(idx, 1);
+            actualizarInterfaz();
+        }
+
+        function setCantCat(sku, val) {
+            const idx = carrito.findIndex(x => x.sku === sku);
+            if (idx === -1) return;
+            const n = parseInt(val);
+            if (isNaN(n) || n <= 0) carrito.splice(idx, 1);
+            else carrito[idx].cant = n;
+            actualizarInterfaz();
+        }
+
         function agregar(sku, nombre, precio) {
             const i = carrito.findIndex(x => x.sku === sku);
             if (i > -1) carrito[i].cant++; else carrito.push({ sku, nombre, precio, cant: 1 });
@@ -323,7 +365,7 @@
             const subCont = document.getElementById('subtotal-container');
             if (!carrito.length) {
                 lista.innerHTML = '<p class="text-center py-10 text-fb-silver text-[10px] font-bold uppercase tracking-widest">AÚN NO HAS AÑADIDO PRODUCTOS</p>';
-                subCont.classList.add('hidden'); return;
+                subCont.classList.add('hidden'); sincronizarCatalogo(); return;
             }
             let subtotal = 0;
             lista.innerHTML = carrito.map((item, idx) => {
@@ -346,6 +388,7 @@
             }).join('');
             subCont.classList.remove('hidden');
             document.getElementById('subtotal-monto').textContent = `$${subtotal.toLocaleString()}`;
+            sincronizarCatalogo();
         }
 
         function setCant(idx, val) { const n = parseInt(val); if (isNaN(n) || n <= 0) carrito.splice(idx, 1); else carrito[idx].cant = n; actualizarInterfaz(); }
