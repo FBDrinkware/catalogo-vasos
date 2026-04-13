@@ -35,7 +35,7 @@
         .badge-ultimas { color: #ef4444; font-size: 10px; font-weight: 800; text-transform: uppercase; animation: pulse-red 1.5s infinite; }
         @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .oferta-tag {
-            position: absolute; bottom: 12px; left: 12px; background-color: #184273; color: white;
+            position: absolute; bottom: 12px; left: 12px; background-color: #ea580c; color: white;
             padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; text-transform: uppercase;
             z-index: 20; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); pointer-events: none;
         }
@@ -111,7 +111,7 @@
                     <span class="text-xs font-black text-fb-mid uppercase tracking-widest">Subtotal estimado</span>
                     <span id="subtotal-monto" class="text-xl font-black text-fb-dark">$0</span>
                 </div>
-                <p class="text-[9px] text-fb-silver mt-1 uppercase tracking-wider">*No incluye personalización ni envío</p>
+                <p class="text-[9px] text-fb-silver mt-1 uppercase tracking-wider">*Incluye una personalización (un logo). Envío gratis a partir de 50 pzas. Cambios sujetos a disponibilidad sin previo aviso.</p>
             </div>
             <div class="bg-fb-cream p-5 md:p-6 rounded-2xl border border-fb-light space-y-4 mb-6">
                 <div>
@@ -377,7 +377,7 @@
             });
             msg += '--------------------------------------\n';
             msg += `SUBTOTAL:  $${sub.toLocaleString()}\n`;
-            msg += '```\n_*No incluye personalización ni envío_\n\n';
+            msg += '```\n_*Incluye una personalización (un logo). Envío gratis a partir de 50 pzas. Cambios sujetos a disponibilidad sin previo aviso._\n\n';
             msg += '✨ *PERSONALIZACIÓN:*\n• Grabado: ' + (pers ? 'SÍ ✅' : 'NO ❌') + '\n';
             if (pers) msg += '• Logo: ' + logo + '\n';
             msg += '• Nombres: ' + (noms ? 'SÍ ✅' : 'NO ❌') + '\n';
