@@ -88,9 +88,20 @@
     </header>
 
     <div id="filtros-oz" class="sticky top-[73px] z-40 bg-fb-cream/95 backdrop-blur-sm border-b border-fb-light/30 px-4 py-3">
-        <div class="flex gap-2 overflow-x-auto max-w-7xl mx-auto items-center" id="contenedor-chips">
-            <span class="text-[10px] font-black text-fb-mid uppercase tracking-widest whitespace-nowrap mr-1">Filtrar:</span>
-            <button class="chip-filtro active" data-oz="todos" onclick="toggleFiltro(this)">Todos</button>
+        <div class="flex gap-2 max-w-7xl mx-auto items-center flex-wrap md:flex-nowrap">
+            <!-- Buscador -->
+            <div class="relative w-full md:w-56 flex-shrink-0 order-1 md:order-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-fb-silver" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" id="buscador" placeholder="Buscar producto..." oninput="aplicarBusqueda()" class="w-full bg-white border border-fb-light rounded-full pl-9 pr-8 py-[7px] text-xs text-fb-dark focus:border-fb-dark outline-none transition-all placeholder:text-fb-silver">
+                <button id="btn-limpiar-busqueda" onclick="limpiarBusqueda()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-fb-silver hover:text-fb-dark transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <!-- Chips de filtro -->
+            <div class="flex gap-2 overflow-x-auto items-center order-2 md:order-none" id="contenedor-chips">
+                <span class="text-[10px] font-black text-fb-mid uppercase tracking-widest whitespace-nowrap mr-1">Filtrar:</span>
+                <button class="chip-filtro active" data-oz="todos" onclick="toggleFiltro(this)">Todos</button>
+            </div>
         </div>
     </div>
 
@@ -299,11 +310,45 @@
             renderizarProductos();
         }
 
+        // ============================================
+        // BUSCADOR
+        // ============================================
+        let terminoBusqueda = '';
+
+        function aplicarBusqueda() {
+            const input = document.getElementById('buscador');
+            terminoBusqueda = input.value.trim().toLowerCase();
+            document.getElementById('btn-limpiar-busqueda').classList.toggle('hidden', !terminoBusqueda);
+            renderizarProductos();
+        }
+
+        function limpiarBusqueda() {
+            document.getElementById('buscador').value = '';
+            terminoBusqueda = '';
+            document.getElementById('btn-limpiar-busqueda').classList.add('hidden');
+            renderizarProductos();
+        }
+
         function renderizarProductos() {
             const cont = document.getElementById('catalogo');
             cont.innerHTML = '';
-            const lista = filtrosActivos.has('todos') ? todosLosProductos : todosLosProductos.filter(p => filtrosActivos.has(p.capacidad));
-            if (!lista.length) { cont.innerHTML = '<div class="col-span-full text-center py-20 text-fb-silver font-bold">No hay productos con ese filtro.</div>'; return; }
+
+            // Aplicar filtro por OZ
+            let lista = filtrosActivos.has('todos') ? todosLosProductos : todosLosProductos.filter(p => filtrosActivos.has(p.capacidad));
+
+            // Aplicar búsqueda (columna B: nombre, columna E: capacidad)
+            if (terminoBusqueda) {
+                const palabras = terminoBusqueda.split(/\s+/);
+                lista = lista.filter(p => {
+                    const texto = (p.nombre + ' ' + p.capacidad + ' ' + p.sku).toLowerCase();
+                    return palabras.every(pal => texto.includes(pal));
+                });
+            }
+
+            if (!lista.length) {
+                cont.innerHTML = `<div class="col-span-full text-center py-20 text-fb-silver font-bold">${terminoBusqueda ? 'No se encontraron productos para "' + terminoBusqueda + '".' : 'No hay productos con ese filtro.'}</div>`;
+                return;
+            }
 
             lista.forEach(p => {
                 const isAgotado = p.estatus.toLowerCase().includes('agotado');
