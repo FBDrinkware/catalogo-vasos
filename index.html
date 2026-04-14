@@ -98,6 +98,16 @@
         <div class="col-span-full text-center py-20 text-fb-silver animate-pulse font-mono text-xs uppercase tracking-widest">SINCRONIZANDO INVENTARIO...</div>
     </main>
 
+    <!-- Preguntas Frecuentes -->
+    <section class="max-w-4xl mx-auto px-4 md:px-6 pb-8 pt-4">
+        <h2 class="text-xl md:text-2xl font-black text-fb-dark uppercase tracking-tighter text-center mb-6">
+            Preguntas Frecuentes
+        </h2>
+        <div class="space-y-3" id="faq-container">
+            <!-- Las FAQ se generan con JS para el acordeón -->
+        </div>
+    </section>
+
     <div class="cart-float">
         <button onclick="toggleCarrito()" class="bg-fb-dark hover:bg-fb-mid text-white p-5 rounded-full shadow-lg flex items-center gap-3 transition-all transform hover:scale-110 active:scale-95">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
@@ -138,9 +148,9 @@
             <div id="subtotal-container" class="hidden mb-6 p-4 bg-fb-cream rounded-2xl border border-fb-light">
                 <div class="flex justify-between items-center">
                     <span class="text-xs font-black text-fb-mid uppercase tracking-widest">Subtotal estimado</span>
-                    <span id="subtotal-monto" class="text-xl font-black text-fb-dark">$0</span>
+                    <span id="subtotal-monto" class="text-xl font-black text-fb-dark">$0.00 MXN</span>
                 </div>
-                <p class="text-[9px] text-fb-silver mt-1 uppercase tracking-wider">*Incluye una personalización (un logo). Envío gratis a partir de 50 pzas. Cambios sujetos a disponibilidad sin previo aviso.</p>
+                <p class="text-[9px] text-fb-silver mt-2 leading-relaxed">*Incluye una personalización (un logo). Envío gratis a partir de 50 pzas. Cambios sujetos a disponibilidad sin previo aviso. Precio estimado. La cotización final, con ofertas (si aplica), será enviada por nuestros agentes vía WhatsApp para su confirmación.</p>
             </div>
             <div class="bg-fb-cream p-5 md:p-6 rounded-2xl border border-fb-light space-y-4 mb-6">
                 <div>
@@ -458,7 +468,7 @@
                     <div class="text-[11px] font-bold flex-1 min-w-0 mr-3">
                         <span class="text-fb-dark font-mono text-[10px]">${item.sku}</span><br>
                         <span class="uppercase text-fb-mid">${item.nombre}</span><br>
-                        <span class="text-fb-silver text-[10px]">$${item.precio} c/u · <strong class="text-fb-dark">$${t.toLocaleString()}</strong></span>
+                        <span class="text-fb-silver text-[10px]">$${item.precio.toLocaleString('es-MX', {minimumFractionDigits:2})} c/u · <strong class="text-fb-dark">$${t.toLocaleString('es-MX', {minimumFractionDigits:2})}</strong></span>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <button onclick="cambiarCant(${idx},-1)" class="text-fb-silver hover:text-fb-dark bg-white w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">−</button>
@@ -471,7 +481,7 @@
                 </div>`;
             }).join('');
             subCont.classList.remove('hidden');
-            document.getElementById('subtotal-monto').textContent = `$${subtotal.toLocaleString()}`;
+            document.getElementById('subtotal-monto').textContent = `$${subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN`;
             sincronizarCatalogo();
         }
 
@@ -503,8 +513,8 @@
                 msg += `${i.sku.padEnd(10)} | ${String(i.cant).padStart(4)} | ${('$'+i.precio).padStart(6)} | ${i.nombre}\n`;
             });
             msg += '--------------------------------------\n';
-            msg += `SUBTOTAL:  $${sub.toLocaleString()}\n`;
-            msg += '```\n_*Incluye una personalización (un logo). Envío gratis a partir de 50 pzas. Cambios sujetos a disponibilidad sin previo aviso._\n\n';
+            msg += `SUBTOTAL:  $${sub.toLocaleString('es-MX', {minimumFractionDigits:2})} MXN\n`;
+            msg += '```\n_*Incluye una personalización (un logo). Envío gratis a partir de 50 pzas. Cambios sujetos a disponibilidad sin previo aviso. Precio estimado, la cotización final será enviada por nuestros agentes._\n\n';
             msg += '✨ *PERSONALIZACIÓN:*\n• Grabado: ' + (pers ? 'SÍ ✅' : 'NO ❌') + '\n';
             if (pers) msg += '• Logo: ' + logo + '\n';
             msg += '• Nombres: ' + (noms ? 'SÍ ✅' : 'NO ❌') + '\n';
@@ -514,7 +524,89 @@
             window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+        // ============================================
+        // PREGUNTAS FRECUENTES (ACORDEÓN)
+        // ============================================
+        const FAQ_DATA = [
+            {
+                q: '¿Cuál es el costo de envío?',
+                a: 'El envío es <strong>GRATIS a todo México a partir de 25 piezas</strong>. En caso contrario, el costo depende del destino y la cantidad de piezas adquiridas (peso y volumen). Nuestros agentes te proporcionarán la cotización exacta.'
+            },
+            {
+                q: '¿Cuál es el precio del personalizado láser? ¿Tienen otras opciones de impresión?',
+                a: 'El grabado láser es <strong>GRATIS a partir de 25 piezas</strong> e incluye 1 área de grabado. Si necesitas grabar más de un logo en tu vaso, el costo es de <strong>$10.00 MXN extra por vaso</strong>. También contamos con grabado 360° (todo el vaso), sujeto a disponibilidad; el tiempo de entrega puede ser mayor. Consulta con nuestros asesores para más detalles.'
+            },
+            {
+                q: 'Si no tengo mi logotipo vectorizado, ¿ustedes lo pueden vectorizar?',
+                a: 'Sí podemos. Dependiendo de la complejidad de tu diseño, el precio por vectorizar tu logotipo va de <strong>$200.00 a $500.00 MXN</strong>. A partir de 25 piezas, el vectorizado es <strong>GRATIS</strong> (incluye hasta 3 cambios).'
+            },
+            {
+                q: '¿Cuántos diseños y/o logos puedo personalizar en mi compra?',
+                a: 'Hasta <strong>2 diseños o logos diferentes por paquete</strong>. Por ejemplo, en tu paquete de 50 vasos de 12 oz puedes grabar hasta 2 diseños o logotipos diferentes. En el caso de nombres individuales, el límite es de uno por vaso.'
+            },
+            {
+                q: '¿Cuál es el tiempo de entrega?',
+                a: 'Varía entre <strong>3 días hábiles y 2 semanas</strong>, una vez confirmado el 100% de tu pago y la aprobación de tu diseño/dummy. El plazo depende de la cantidad de vasos adquiridos y del destino de envío.'
+            },
+            {
+                q: '¿Ustedes realizan la entrega?',
+                a: 'Contamos con 4 opciones de entrega:<br><br>' +
+                   '<strong>1. Pick Up:</strong> Acudes a nuestras instalaciones a recoger tu pedido.<br>' +
+                   '<strong>2. Logística propia:</strong> Te lo entregamos directamente. Cobertura: Cancún, Playa del Carmen, Isla Mujeres, Cozumel y Tulum (Quintana Roo, México).<br>' +
+                   '<strong>3. Paquetería:</strong> Envío por Estafeta terrestre (gratis a partir de 25 piezas). Las condiciones te las indicarán nuestros agentes.<br>' +
+                   '<strong>4. Guía propia:</strong> Nos proporcionas una guía de envío con tu servicio de paquetería preferido.'
+            },
+            {
+                q: '¿Cómo y dónde puedo hacer mi pago?',
+                a: 'Puedes realizar tu compra a través de <strong>WhatsApp</strong>. El pago es exclusivamente por depósito bancario, transferencia electrónica, o tarjeta de crédito/débito.'
+            },
+            {
+                q: '¿Facturan? ¿Sus precios tienen IVA incluido?',
+                a: 'Sí facturamos. Los precios mostrados en el catálogo <strong>NO incluyen IVA</strong>. Para solicitar tu factura, envíanos tu Constancia de Situación Fiscal actualizada (no mayor a 3 meses).'
+            },
+            {
+                q: '¿Tienen garantía o política de devoluciones?',
+                a: 'Todos nuestros productos cuentan con <strong>garantía contra defectos de fabricación</strong>. Si recibes un producto dañado o defectuoso, contáctanos dentro de las primeras 48 horas posteriores a la recepción con fotografías del producto. Te haremos la reposición correspondiente. No aplica para daños causados por mal uso.'
+            },
+        ];
+
+        function renderFAQ() {
+            const cont = document.getElementById('faq-container');
+            cont.innerHTML = FAQ_DATA.map((item, idx) => `
+                <div class="bg-white rounded-2xl border border-fb-light overflow-hidden transition-all">
+                    <button onclick="toggleFAQ(${idx})" class="w-full text-left p-5 flex items-center justify-between gap-4 hover:bg-fb-cream/50 transition-colors">
+                        <span class="text-sm font-bold text-fb-dark leading-tight">${item.q}</span>
+                        <svg id="faq-icon-${idx}" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-fb-mid flex-shrink-0 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="faq-body-${idx}" class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="px-5 pb-5 text-sm text-fb-mid leading-relaxed">${item.a}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleFAQ(idx) {
+            const body = document.getElementById(`faq-body-${idx}`);
+            const icon = document.getElementById(`faq-icon-${idx}`);
+            const isOpen = body.style.maxHeight && body.style.maxHeight !== '0px';
+            
+            // Cerrar todos
+            FAQ_DATA.forEach((_, i) => {
+                document.getElementById(`faq-body-${i}`).style.maxHeight = '0px';
+                document.getElementById(`faq-icon-${i}`).style.transform = 'rotate(0deg)';
+            });
+
+            // Abrir el seleccionado (si no estaba abierto)
+            if (!isOpen) {
+                body.style.maxHeight = body.scrollHeight + 'px';
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
         cargarProductos();
+        renderFAQ();
     </script>
 </body>
 </html>
