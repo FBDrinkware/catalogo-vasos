@@ -820,6 +820,7 @@
             msg += 'Pedido generado desde el catálogo FB Drinkware.';
 
             window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
+            setTimeout(() => { location.reload(); }, 500);
         }
 
         // ============================================
