@@ -232,51 +232,134 @@
             <div id="lista-carrito" class="space-y-3 mb-4 pr-1 overflow-y-auto max-h-60"></div>
             <div id="subtotal-container" class="hidden mb-6 p-4 bg-fb-cream rounded-2xl border border-fb-light">
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-black text-fb-mid uppercase tracking-widest">Subtotal estimado</span>
-                    <span id="subtotal-monto" class="text-xl font-black text-fb-dark">$0.00 MXN</span>
+                    <span class="text-xs font-black text-fb-mid uppercase tracking-widest">Subtotal</span>
+                    <span id="subtotal-monto" class="text-lg font-black text-fb-dark">$0.00 MXN</span>
                 </div>
-                <p class="text-[9px] text-fb-silver mt-2 leading-relaxed">*Incluye una personalización (un logo). Envío gratis a partir de 50 pzas. Cambios sujetos a disponibilidad sin previo aviso. Precio estimado. La cotización final, con ofertas (si aplica), será enviada por nuestros agentes vía WhatsApp para su confirmación.</p>
+                <div class="flex justify-between items-center mt-1">
+                    <span class="text-xs font-black text-fb-mid uppercase tracking-widest">Envío est.</span>
+                    <span id="envio-monto" class="text-lg font-black text-fb-dark">$0.00 MXN</span>
+                </div>
+                <div class="flex justify-between items-center mt-2 pt-2 border-t border-fb-light">
+                    <span class="text-xs font-black text-fb-dark uppercase tracking-widest">Total estimado</span>
+                    <span id="total-monto" class="text-xl font-black text-fb-dark">$0.00 MXN</span>
+                </div>
+                <p id="envio-nota" class="text-[9px] text-fb-silver mt-2 leading-relaxed"></p>
+                <p class="text-[9px] text-fb-silver mt-1 leading-relaxed">*Incluye una personalización (un logo). Cambios sujetos a disponibilidad sin previo aviso. Precio estimado. La cotización final, con ofertas (si aplica), será enviada por nuestros agentes vía WhatsApp para su confirmación.</p>
             </div>
-            <div class="bg-fb-cream p-5 md:p-6 rounded-2xl border border-fb-light space-y-4 mb-6">
+
+            <!-- SECCIÓN 1: Datos personales -->
+            <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
+                <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
+                    <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">1</span>
+                    Datos personales
+                </h3>
                 <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Nombre completo</label>
+                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Nombre completo *</label>
                     <input type="text" id="form-nombre" placeholder="Ej: Juan Pérez" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Teléfono de contacto</label>
-                    <input type="tel" id="form-telefono" placeholder="Ej: 998 321 0480" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Teléfono *</label>
+                    <input type="tel" id="form-telefono" placeholder="Ej: 9983210480" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Código Postal de Envío</label>
-                    <input type="text" id="form-cp" placeholder="Ej: 77500" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Correo electrónico *</label>
+                    <input type="email" id="form-correo" placeholder="Ej: correo@ejemplo.com" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
                 </div>
-                <div class="space-y-3 pt-2">
-                    <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
-                        <input type="checkbox" id="check-personalizar" class="w-5 h-5 rounded" onchange="togglePersonalizacion()">
-                        <span class="text-xs font-bold text-fb-dark">¿Deseas personalizar tus vasos?</span>
-                    </label>
-                    <div id="opciones-logo" class="hidden pl-4 space-y-2 border-l-2 border-fb-dark/30">
-                        <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
-                            <input type="radio" name="logo-tipo" value="VECTORIZADO" checked> Tengo logo vectorizado (.AI, .SVG)
-                        </label>
-                        <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
-                            <input type="radio" name="logo-tipo" value="IDEA O IMAGEN"> Tengo solo una idea/imagen (.JPG, .PNG)
-                        </label>
+            </div>
+
+            <!-- SECCIÓN 2: Datos de envío -->
+            <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
+                <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
+                    <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">2</span>
+                    Datos de envío
+                </h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Ciudad *</label>
+                        <input type="text" id="form-ciudad" placeholder="Ej: Cancún" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
                     </div>
-                    <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
-                        <input type="checkbox" id="check-nombres" class="w-5 h-5 rounded">
-                        <span class="text-xs font-bold text-fb-dark">Agregar nombres individuales</span>
+                    <div>
+                        <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">C.P. *</label>
+                        <input type="text" id="form-cp" placeholder="Ej: 77500" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Estado *</label>
+                    <input type="text" id="form-estado" placeholder="Ej: Quintana Roo" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: Detalles del pedido -->
+            <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
+                <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
+                    <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">3</span>
+                    Detalles del pedido
+                </h3>
+                <div>
+                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Tipo de pedido *</label>
+                    <select id="form-tipo-pedido" onchange="toggleOtroTipo()" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                        <option value="">Selecciona...</option>
+                        <option value="Boda">Boda</option>
+                        <option value="Evento">Evento</option>
+                        <option value="Corporativo">Corporativo</option>
+                        <option value="Regalo personal">Regalo personal</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div id="otro-tipo-container" class="hidden">
+                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Especifica *</label>
+                    <input type="text" id="form-otro-tipo" placeholder="Ej: Quinceañera, Baby shower..." class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Fecha que lo necesitas *</label>
+                    <input type="date" id="form-fecha" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                    <p class="text-[9px] text-fb-silver mt-1 ml-1">Tiempo m\u00ednimo de producci\u00f3n y env\u00edo: 5 d\u00edas h\u00e1biles, sujeto al volumen de compra y destino de env\u00edo. Nuestros asesores le confirmar\u00e1n la fecha de entrega junto con su cotizaci\u00f3n final.</p>
+                </div>
+                <div>
+                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Método de pago preferido *</label>
+                    <select id="form-pago" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                        <option value="">Selecciona...</option>
+                        <option value="Transferencia">Transferencia bancaria</option>
+                        <option value="Depósito">Depósito bancario</option>
+                        <option value="Tarjeta CLIP">Tarjeta de crédito/débito (CLIP)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 4: Personalización y facturación -->
+            <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-6">
+                <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
+                    <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">4</span>
+                    Personalización y facturación
+                </h3>
+                <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
+                    <input type="checkbox" id="check-personalizar" class="w-5 h-5 rounded" onchange="togglePersonalizacion()">
+                    <span class="text-xs font-bold text-fb-dark">¿Deseas personalizar tus vasos?</span>
+                </label>
+                <div id="opciones-logo" class="hidden pl-4 space-y-2 border-l-2 border-fb-dark/30">
+                    <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
+                        <input type="radio" name="logo-tipo" value="Tengo vector PDF/AI" checked> Tengo logo vectorizado (PDF/AI)
                     </label>
-                    <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
-                        <input type="checkbox" id="check-factura" class="w-5 h-5 rounded" onchange="toggleFactura()">
-                        <span class="text-xs font-bold text-fb-dark">Requiero factura</span>
+                    <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
+                        <input type="radio" name="logo-tipo" value="Tengo imagen PNG"> Tengo solo una imagen (PNG/JPG)
                     </label>
-                    <div id="aviso-factura" class="hidden pl-4 border-l-2 border-fb-dark/30">
-                        <div class="aviso-factura">
-                            <strong>📄 Importante:</strong> Para facturar, adjunta tu <strong>Constancia de Situación Fiscal</strong> (PDF) en la conversación de WhatsApp.
-                            <br><br>
-                            <span class="text-[10px] text-fb-silver">Si aún no la tienes: <a href="https://www.sat.gob.mx" target="_blank" class="underline text-fb-dark hover:text-fb-mid">sat.gob.mx</a></span>
-                        </div>
+                    <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
+                        <input type="radio" name="logo-tipo" value="Necesito diseño"> Necesito que diseñen mi logo
+                    </label>
+                </div>
+                <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
+                    <input type="checkbox" id="check-nombres" class="w-5 h-5 rounded">
+                    <span class="text-xs font-bold text-fb-dark">Agregar nombres individuales</span>
+                </label>
+                <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
+                    <input type="checkbox" id="check-factura" class="w-5 h-5 rounded" onchange="toggleFactura()">
+                    <span class="text-xs font-bold text-fb-dark">Requiero factura</span>
+                </label>
+                <div id="aviso-factura" class="hidden pl-4 border-l-2 border-fb-dark/30">
+                    <div class="aviso-factura">
+                        <strong>Importante:</strong> Para facturar, adjunta tu <strong>Constancia de Situación Fiscal</strong> (PDF) en la conversación de WhatsApp.
+                        <br><br>
+                        <span class="text-[10px] text-fb-silver">Si aún no la tienes: <a href="https://www.sat.gob.mx" target="_blank" class="underline text-fb-dark hover:text-fb-mid">sat.gob.mx</a></span>
                     </div>
                 </div>
             </div>
@@ -574,7 +657,8 @@
         }
 
         function actualizarInterfaz() {
-            document.getElementById('cart-count').innerText = carrito.reduce((s, i) => s + i.cant, 0);
+            const totalPiezas = carrito.reduce((s, i) => s + i.cant, 0);
+            document.getElementById('cart-count').innerText = totalPiezas;
             const lista = document.getElementById('lista-carrito');
             const subCont = document.getElementById('subtotal-container');
             if (!carrito.length) {
@@ -591,7 +675,7 @@
                         <span class="text-fb-silver text-[10px]">$${item.precio.toLocaleString('es-MX', {minimumFractionDigits:2})} c/u · <strong class="text-fb-dark">$${t.toLocaleString('es-MX', {minimumFractionDigits:2})}</strong></span>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
-                        <button onclick="cambiarCant(${idx},-1)" class="text-fb-silver hover:text-fb-dark bg-white w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">−</button>
+                        <button onclick="cambiarCant(${idx},-1)" class="text-fb-silver hover:text-fb-dark bg-white w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">\u2212</button>
                         <input type="number" class="cant-input" value="${item.cant}" min="1" onchange="setCant(${idx},this.value)" onclick="this.select()">
                         <button onclick="cambiarCant(${idx},1)" class="text-fb-silver hover:text-fb-dark bg-white w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">+</button>
                         <button onclick="eliminar(${idx})" class="text-fb-silver hover:text-red-500 transition-colors ml-1">
@@ -600,8 +684,20 @@
                     </div>
                 </div>`;
             }).join('');
+
+            // Lógica de envío: gratis >= 50 piezas, "por cotizar" < 50
+            const envioGratis = totalPiezas >= 50;
+            const envio = 0; // Siempre 0 en el cálculo, el asesor cotiza si < 50
+            const total = subtotal + envio;
+
             subCont.classList.remove('hidden');
-            document.getElementById('subtotal-monto').textContent = `$${subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN`;
+            const fmt = (n) => `$${n.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN`;
+            document.getElementById('subtotal-monto').textContent = fmt(subtotal);
+            document.getElementById('envio-monto').textContent = envioGratis ? '$0.00 MXN' : 'Por cotizar';
+            document.getElementById('total-monto').textContent = fmt(total);
+            document.getElementById('envio-nota').textContent = envioGratis
+                ? 'Env\u00edo gratis a todo M\u00e9xico por compra de 50+ piezas.'
+                : 'El costo de env\u00edo ser\u00e1 cotizado por nuestros asesores v\u00eda WhatsApp.';
             sincronizarCatalogo();
         }
 
@@ -611,36 +707,118 @@
         function toggleCarrito() { document.getElementById('modal-carrito').classList.toggle('hidden'); }
         function togglePersonalizacion() { document.getElementById('opciones-logo').style.display = document.getElementById('check-personalizar').checked ? 'block' : 'none'; }
         function toggleFactura() { document.getElementById('aviso-factura').style.display = document.getElementById('check-factura').checked ? 'block' : 'none'; }
+        function toggleOtroTipo() { document.getElementById('otro-tipo-container').style.display = document.getElementById('form-tipo-pedido').value === 'Otro' ? 'block' : 'none'; }
+
+        // Generar ID de pedido único: PED-AAAA-NNNN
+        function generarIdPedido() {
+            const year = new Date().getFullYear();
+            const rand = String(Math.floor(1000 + Math.random() * 9000));
+            const ts = String(Date.now()).slice(-4);
+            return `PED-${year}-${ts}${rand}`.substring(0, 13);
+        }
+
+        // Leer UTM de la URL
+        function getUtmCampaign() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('utm_campaign') || 'directo';
+        }
 
         function enviarWhatsApp() {
-            if (!carrito.length) return alert('El carrito está vacío.');
+            if (!carrito.length) return alert('El carrito est\u00e1 vac\u00edo.');
             const nom = document.getElementById('form-nombre').value.trim();
             const tel = document.getElementById('form-telefono').value.trim();
+            const correo = document.getElementById('form-correo').value.trim();
+            const ciudad = document.getElementById('form-ciudad').value.trim();
+            const estado = document.getElementById('form-estado').value.trim();
             const cp = document.getElementById('form-cp').value.trim();
+            const tipoPedido = document.getElementById('form-tipo-pedido').value;
+            const otroTipo = document.getElementById('form-otro-tipo')?.value.trim() || '';
+            const fechaReq = document.getElementById('form-fecha').value;
+            const metodoPago = document.getElementById('form-pago').value;
+
+            // Validaciones
             if (!nom) return alert('Ingresa tu nombre.');
-            if (!tel) return alert('Ingresa tu teléfono.');
-            if (!cp) return alert('Ingresa tu Código Postal.');
+            if (!tel) return alert('Ingresa tu tel\u00e9fono.');
+            if (!correo) return alert('Ingresa tu correo electr\u00f3nico.');
+            if (!ciudad) return alert('Ingresa tu ciudad.');
+            if (!estado) return alert('Ingresa tu estado.');
+            if (!cp) return alert('Ingresa tu C\u00f3digo Postal.');
+            if (!tipoPedido) return alert('Selecciona el tipo de pedido.');
+            if (tipoPedido === 'Otro' && !otroTipo) return alert('Especifica el tipo de pedido.');
+            if (!fechaReq) return alert('Selecciona la fecha que necesitas tu pedido.');
+            if (!metodoPago) return alert('Selecciona tu m\u00e9todo de pago preferido.');
+
             const pers = document.getElementById('check-personalizar').checked;
             const logo = document.querySelector('input[name="logo-tipo"]:checked')?.value || 'N/A';
             const noms = document.getElementById('check-nombres').checked;
             const fact = document.getElementById('check-factura').checked;
+
+            const totalPiezas = carrito.reduce((s, i) => s + i.cant, 0);
             let sub = 0;
-            let msg = '🚀 *NUEVO PEDIDO: FB DRINKWARE* 🚀\n\n';
-            msg += '👤 *DATOS DEL CLIENTE:*\n• Nombre: ' + nom + '\n• Teléfono: ' + tel + '\n📍 *CP:* ' + cp + '\n\n';
-            msg += '*DETALLE DE PRODUCTOS:*\n```\nSKU        | CANT | P.UNIT | PRODUCTO\n--------------------------------------\n';
+            const envioGratis = totalPiezas >= 50;
+            const pedidoId = generarIdPedido();
+            const now = new Date();
+            const fechaHoy = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+            const hora = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const tipoFinal = tipoPedido === 'Otro' ? `Otro: ${otroTipo}` : tipoPedido;
+
+            // Formatear fecha requerida
+            const fr = fechaReq.split('-');
+            const fechaReqFmt = fr.length === 3 ? `${fr[2]}/${fr[1]}/${fr[0]}` : fechaReq;
+
+            const fmt = (n) => n.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+            let msg = '\uD83D\uDED2 NUEVO PEDIDO \u00B7 FB DRINKWARE\n';
+            msg += '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n';
+            msg += `\uD83D\uDCCB ID: ${pedidoId}\n`;
+            msg += `\uD83D\uDCC5 Fecha: ${fechaHoy} \u00B7 ${hora} hrs\n\n`;
+
+            msg += '\uD83D\uDC64 CLIENTE\n';
+            msg += `\u2022 Nombre: ${nom}\n`;
+            msg += `\u2022 Tel\u00e9fono: ${tel}\n`;
+            msg += `\u2022 Correo: ${correo}\n`;
+            msg += `\u2022 Ciudad: ${ciudad}, ${estado} (CP ${cp})\n`;
+            msg += `\u2022 Tipo de pedido: ${tipoFinal}\n\n`;
+
+            msg += `\uD83D\uDCE6 PRODUCTOS (${totalPiezas} piezas)\n`;
+            msg += 'SKU       | CANT | P.UNIT | PRODUCTO\n';
+            msg += '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
             carrito.forEach(i => {
                 sub += i.precio * i.cant;
-                msg += `${i.sku.padEnd(10)} | ${String(i.cant).padStart(4)} | ${('$'+i.precio).padStart(6)} | ${i.nombre}\n`;
+                msg += `${i.sku.padEnd(9)} | ${String(i.cant).padStart(4)} | $${String(i.precio).padStart(4)} | ${i.nombre}\n`;
             });
-            msg += '--------------------------------------\n';
-            msg += `SUBTOTAL:  $${sub.toLocaleString('es-MX', {minimumFractionDigits:2})} MXN\n`;
-            msg += '```\n_*Incluye una personalización (un logo). Envío gratis a partir de 50 pzas. Cambios sujetos a disponibilidad sin previo aviso. Precio estimado, la cotización final será enviada por nuestros agentes._\n\n';
-            msg += '✨ *PERSONALIZACIÓN:*\n• Grabado: ' + (pers ? 'SÍ ✅' : 'NO ❌') + '\n';
-            if (pers) msg += '• Logo: ' + logo + '\n';
-            msg += '• Nombres: ' + (noms ? 'SÍ ✅' : 'NO ❌') + '\n';
-            msg += '\n🧾 *FACTURACIÓN:*\n• Factura: ' + (fact ? 'SÍ ✅' : 'NO ❌') + '\n';
-            if (fact) msg += '📎 _Adjuntaré mi Constancia de Situación Fiscal._\n';
-            msg += '\n¿Me confirman disponibilidad y costo total?';
+            msg += '\n';
+
+            const envioStr = envioGratis ? '$0.00 MXN' : 'Por cotizar';
+            const totalEst = sub;
+
+            msg += '\uD83D\uDCB0 RESUMEN\n';
+            msg += `\u2022 Subtotal:      $${fmt(sub)} MXN\n`;
+            msg += `\u2022 Env\u00edo est.:    ${envioStr}\n`;
+            msg += `\u2022 TOTAL EST.:    $${fmt(totalEst)} MXN\n`;
+            if (!envioGratis) msg += '_El costo de env\u00edo ser\u00e1 cotizado por nuestros asesores._\n';
+            msg += '\n';
+
+            msg += '\uD83C\uDFA8 PERSONALIZACI\u00D3N\n';
+            msg += `\u2022 Grabado: ${pers ? 'S\u00ed' : 'No'}\n`;
+            if (pers) msg += `\u2022 Logo: ${logo}\n`;
+            msg += `\u2022 Nombres por vaso: ${noms ? 'S\u00ed' : 'No'}\n\n`;
+
+            msg += '\uD83E\uDDFE FACTURACI\u00D3N\n';
+            msg += `\u2022 Requiere factura: ${fact ? 'S\u00ed' : 'No'}\n`;
+            if (fact) msg += '\u2022 Adjuntar\u00e9 mi Constancia de Situaci\u00f3n Fiscal.\n';
+            msg += '\n';
+
+            msg += '\uD83D\uDCB3 PAGO\n';
+            msg += `\u2022 M\u00e9todo preferido: ${metodoPago}\n\n`;
+
+            msg += `\uD83D\uDCC6 FECHA QUE LO NECESITA: ${fechaReqFmt}\n\n`;
+
+            msg += '\uD83D\uDCE2 ORIGEN\n';
+            msg += `\u2022 Campa\u00f1a: ${getUtmCampaign()}\n`;
+            msg += '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n';
+            msg += 'Pedido generado autom\u00e1ticamente desde el cat\u00e1logo.';
+
             window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
@@ -812,6 +990,14 @@
             document.getElementById('modal-legal').classList.remove('show');
             document.body.style.overflow = '';
         }
+
+        // Bloquear fechas anteriores a hoy + 5 días en el selector
+        (function setMinFecha() {
+            const hoy = new Date();
+            hoy.setDate(hoy.getDate() + 5);
+            const min = hoy.toISOString().split('T')[0];
+            document.getElementById('form-fecha').setAttribute('min', min);
+        })();
 
         cargarProductos();
         renderFAQ();
