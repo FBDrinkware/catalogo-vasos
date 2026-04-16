@@ -313,7 +313,7 @@
                 <div>
                     <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Fecha que lo necesitas *</label>
                     <input type="date" id="form-fecha" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                    <p class="text-[9px] text-fb-silver mt-1 ml-1">Tiempo m\u00ednimo de producci\u00f3n y env\u00edo: 5 d\u00edas h\u00e1biles, sujeto al volumen de compra y destino de env\u00edo. Nuestros asesores le confirmar\u00e1n la fecha de entrega junto con su cotizaci\u00f3n final.</p>
+                    <p class="text-[9px] text-fb-silver mt-1 ml-1">Tiempo mínimo de producción y envío: 5 días hábiles, sujeto al volumen de compra y destino de envío. Nuestros asesores le confirmarán la fecha de entrega junto con su cotización final.</p>
                 </div>
                 <div>
                     <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Método de pago preferido *</label>
@@ -675,7 +675,7 @@
                         <span class="text-fb-silver text-[10px]">$${item.precio.toLocaleString('es-MX', {minimumFractionDigits:2})} c/u · <strong class="text-fb-dark">$${t.toLocaleString('es-MX', {minimumFractionDigits:2})}</strong></span>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
-                        <button onclick="cambiarCant(${idx},-1)" class="text-fb-silver hover:text-fb-dark bg-white w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">\u2212</button>
+                        <button onclick="cambiarCant(${idx},-1)" class="text-fb-silver hover:text-fb-dark bg-white w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">-</button>
                         <input type="number" class="cant-input" value="${item.cant}" min="1" onchange="setCant(${idx},this.value)" onclick="this.select()">
                         <button onclick="cambiarCant(${idx},1)" class="text-fb-silver hover:text-fb-dark bg-white w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">+</button>
                         <button onclick="eliminar(${idx})" class="text-fb-silver hover:text-red-500 transition-colors ml-1">
@@ -696,8 +696,8 @@
             document.getElementById('envio-monto').textContent = envioGratis ? '$0.00 MXN' : 'Por cotizar';
             document.getElementById('total-monto').textContent = fmt(total);
             document.getElementById('envio-nota').textContent = envioGratis
-                ? 'Env\u00edo gratis a todo M\u00e9xico por compra de 50+ piezas.'
-                : 'El costo de env\u00edo ser\u00e1 cotizado por nuestros asesores v\u00eda WhatsApp.';
+                ? 'Envío gratis a todo México por compra de 50+ piezas.'
+                : 'El costo de envío será cotizado por nuestros asesores vía WhatsApp.';
             sincronizarCatalogo();
         }
 
@@ -724,7 +724,7 @@
         }
 
         function enviarWhatsApp() {
-            if (!carrito.length) return alert('El carrito est\u00e1 vac\u00edo.');
+            if (!carrito.length) return alert('El carrito está vacío.');
             const nom = document.getElementById('form-nombre').value.trim();
             const tel = document.getElementById('form-telefono').value.trim();
             const correo = document.getElementById('form-correo').value.trim();
@@ -738,15 +738,15 @@
 
             // Validaciones
             if (!nom) return alert('Ingresa tu nombre.');
-            if (!tel) return alert('Ingresa tu tel\u00e9fono.');
-            if (!correo) return alert('Ingresa tu correo electr\u00f3nico.');
+            if (!tel) return alert('Ingresa tu teléfono.');
+            if (!correo) return alert('Ingresa tu correo electrónico.');
             if (!ciudad) return alert('Ingresa tu ciudad.');
             if (!estado) return alert('Ingresa tu estado.');
-            if (!cp) return alert('Ingresa tu C\u00f3digo Postal.');
+            if (!cp) return alert('Ingresa tu Código Postal.');
             if (!tipoPedido) return alert('Selecciona el tipo de pedido.');
             if (tipoPedido === 'Otro' && !otroTipo) return alert('Especifica el tipo de pedido.');
             if (!fechaReq) return alert('Selecciona la fecha que necesitas tu pedido.');
-            if (!metodoPago) return alert('Selecciona tu m\u00e9todo de pago preferido.');
+            if (!metodoPago) return alert('Selecciona tu método de pago preferido.');
 
             const pers = document.getElementById('check-personalizar').checked;
             const logo = document.querySelector('input[name="logo-tipo"]:checked')?.value || 'N/A';
@@ -768,21 +768,21 @@
 
             const fmt = (n) => n.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
 
-            let msg = '\uD83D\uDED2 NUEVO PEDIDO \u00B7 FB DRINKWARE\n';
-            msg += '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n';
-            msg += `\uD83D\uDCCB ID: ${pedidoId}\n`;
-            msg += `\uD83D\uDCC5 Fecha: ${fechaHoy} \u00B7 ${hora} hrs\n\n`;
+            let msg = '>> NUEVO PEDIDO - FB DRINKWARE\n';
+            msg += '================================\n';
+            msg += `# ID: ${pedidoId}\n`;
+            msg += `# Fecha: ${fechaHoy} - ${hora} hrs\n\n`;
 
-            msg += '\uD83D\uDC64 CLIENTE\n';
-            msg += `\u2022 Nombre: ${nom}\n`;
-            msg += `\u2022 Tel\u00e9fono: ${tel}\n`;
-            msg += `\u2022 Correo: ${correo}\n`;
-            msg += `\u2022 Ciudad: ${ciudad}, ${estado} (CP ${cp})\n`;
-            msg += `\u2022 Tipo de pedido: ${tipoFinal}\n\n`;
+            msg += '>> CLIENTE\n';
+            msg += `- Nombre: ${nom}\n`;
+            msg += `- Teléfono: ${tel}\n`;
+            msg += `- Correo: ${correo}\n`;
+            msg += `- Ciudad: ${ciudad}, ${estado} (CP ${cp})\n`;
+            msg += `- Tipo de pedido: ${tipoFinal}\n\n`;
 
-            msg += `\uD83D\uDCE6 PRODUCTOS (${totalPiezas} piezas)\n`;
+            msg += `>> PRODUCTOS (${totalPiezas} piezas)\n`;
             msg += 'SKU       | CANT | P.UNIT | PRODUCTO\n';
-            msg += '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
+            msg += '--------------------------------------\n';
             carrito.forEach(i => {
                 sub += i.precio * i.cant;
                 msg += `${i.sku.padEnd(9)} | ${String(i.cant).padStart(4)} | $${String(i.precio).padStart(4)} | ${i.nombre}\n`;
@@ -792,32 +792,32 @@
             const envioStr = envioGratis ? '$0.00 MXN' : 'Por cotizar';
             const totalEst = sub;
 
-            msg += '\uD83D\uDCB0 RESUMEN\n';
-            msg += `\u2022 Subtotal:      $${fmt(sub)} MXN\n`;
-            msg += `\u2022 Env\u00edo est.:    ${envioStr}\n`;
-            msg += `\u2022 TOTAL EST.:    $${fmt(totalEst)} MXN\n`;
-            if (!envioGratis) msg += '_El costo de env\u00edo ser\u00e1 cotizado por nuestros asesores._\n';
+            msg += '>> RESUMEN\n';
+            msg += `- Subtotal:      $${fmt(sub)} MXN\n`;
+            msg += `- Envío est.:    ${envioStr}\n`;
+            msg += `- TOTAL EST.:    $${fmt(totalEst)} MXN\n`;
+            if (!envioGratis) msg += '_El costo de envío será cotizado por nuestros asesores._\n';
             msg += '\n';
 
-            msg += '\uD83C\uDFA8 PERSONALIZACI\u00D3N\n';
-            msg += `\u2022 Grabado: ${pers ? 'S\u00ed' : 'No'}\n`;
-            if (pers) msg += `\u2022 Logo: ${logo}\n`;
-            msg += `\u2022 Nombres por vaso: ${noms ? 'S\u00ed' : 'No'}\n\n`;
+            msg += '>> PERSONALIZACIÓN\n';
+            msg += `- Grabado: ${pers ? 'Sí' : 'No'}\n`;
+            if (pers) msg += `- Logo: ${logo}\n`;
+            msg += `- Nombres por vaso: ${noms ? 'Sí' : 'No'}\n\n`;
 
-            msg += '\uD83E\uDDFE FACTURACI\u00D3N\n';
-            msg += `\u2022 Requiere factura: ${fact ? 'S\u00ed' : 'No'}\n`;
-            if (fact) msg += '\u2022 Adjuntar\u00e9 mi Constancia de Situaci\u00f3n Fiscal.\n';
+            msg += '>> FACTURACIÓN\n';
+            msg += `- Requiere factura: ${fact ? 'Sí' : 'No'}\n`;
+            if (fact) msg += '- Adjuntaré mi Constancia de Situación Fiscal.\n';
             msg += '\n';
 
-            msg += '\uD83D\uDCB3 PAGO\n';
-            msg += `\u2022 M\u00e9todo preferido: ${metodoPago}\n\n`;
+            msg += '>> PAGO\n';
+            msg += `- Método preferido: ${metodoPago}\n\n`;
 
-            msg += `\uD83D\uDCC6 FECHA QUE LO NECESITA: ${fechaReqFmt}\n\n`;
+            msg += `>> FECHA QUE LO NECESITA: ${fechaReqFmt}\n\n`;
 
-            msg += '\uD83D\uDCE2 ORIGEN\n';
-            msg += `\u2022 Campa\u00f1a: ${getUtmCampaign()}\n`;
-            msg += '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n';
-            msg += 'Pedido generado autom\u00e1ticamente desde el cat\u00e1logo.';
+            msg += '>> ORIGEN\n';
+            msg += `- Campaña: ${getUtmCampaign()}\n`;
+            msg += '================================\n';
+            msg += 'Pedido generado desde el catálogo FB Drinkware.';
 
             window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
         }
