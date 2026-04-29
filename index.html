@@ -247,140 +247,183 @@
                 <p class="text-[9px] text-fb-silver mt-1 leading-relaxed">*Incluye una personalización (un logo). Cambios sujetos a disponibilidad sin previo aviso. Precio estimado. La cotización final, con ofertas (si aplica), será enviada por nuestros agentes vía WhatsApp para su confirmación.</p>
             </div>
 
-            <!-- SECCIÓN 1: Datos personales -->
-            <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
-                <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
-                    <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">1</span>
-                    Datos personales
-                </h3>
-                <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Empresa <span class="text-fb-silver">(opcional)</span></label>
-                    <input type="text" id="form-empresa" placeholder="Ej: Mi Empresa S.A. de C.V." class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                </div>
-                <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Contacto *</label>
-                    <input type="text" id="form-nombre" placeholder="Ej: Juan Pérez" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                </div>
-                <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Teléfono *</label>
-                    <input type="tel" id="form-telefono" placeholder="Ej: 9983210480" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                </div>
-                <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Correo electrónico <span class="text-fb-silver">(opcional)</span></label>
-                    <input type="email" id="form-correo" placeholder="Ej: correo@ejemplo.com" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                </div>
-            </div>
-
-            <!-- SECCIÓN 2: Datos de envío -->
-            <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
-                <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
-                    <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">2</span>
-                    Datos de envío
-                </h3>
+            <!-- Selector de modo: Cotización rápida vs Pedido completo -->
+            <div id="modo-selector" class="mb-4">
+                <p class="text-[11px] text-fb-mid text-center mb-3 font-bold">¿Cómo deseas continuar?</p>
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Ciudad *</label>
-                        <input type="text" id="form-ciudad" placeholder="Ej: Cancún" oninput="verificarPickup()" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">C.P. *</label>
-                        <input type="text" id="form-cp" placeholder="Ej: 77500" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Estado *</label>
-                    <input type="text" id="form-estado" placeholder="Ej: Quintana Roo" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                </div>
-                <div id="pickup-container" class="hidden">
-                    <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
-                        <input type="checkbox" id="check-pickup" class="w-5 h-5 rounded">
-                        <span class="text-xs font-bold text-fb-dark">Prefiero recoger en sucursal (Pick Up - Cancún)</span>
-                    </label>
+                    <button onclick="setModo('rapido')" id="btn-modo-rapido" class="p-4 rounded-2xl border-2 border-fb-light bg-fb-cream text-center transition-all hover:border-fb-dark">
+                        <span class="block text-2xl mb-1">💬</span>
+                        <span class="block text-[11px] font-black text-fb-dark uppercase">Cotización rápida</span>
+                        <span class="block text-[9px] text-fb-silver mt-1">Solo datos básicos. Un asesor te contactará.</span>
+                    </button>
+                    <button onclick="setModo('completo')" id="btn-modo-completo" class="p-4 rounded-2xl border-2 border-fb-light bg-fb-cream text-center transition-all hover:border-fb-dark">
+                        <span class="block text-2xl mb-1">📋</span>
+                        <span class="block text-[11px] font-black text-fb-dark uppercase">Pedido completo</span>
+                        <span class="block text-[9px] text-fb-silver mt-1">Llena todos los datos para agilizar tu pedido.</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- SECCIÓN 3: Detalles del pedido -->
-            <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
-                <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
-                    <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">3</span>
-                    Detalles del pedido
-                </h3>
-                <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Tipo de pedido *</label>
-                    <select id="form-tipo-pedido" onchange="toggleOtroTipo()" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                        <option value="">Selecciona...</option>
-                        <option value="Boda">Boda</option>
-                        <option value="Evento">Evento</option>
-                        <option value="Corporativo">Corporativo</option>
-                        <option value="Regalo personal">Regalo personal</option>
-                        <option value="Otro">Otro</option>
-                    </select>
-                </div>
-                <div id="otro-tipo-container" class="hidden">
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Especifica *</label>
-                    <input type="text" id="form-otro-tipo" placeholder="Ej: Quinceañera, Baby shower..." class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                </div>
-                <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Fecha que lo necesitas *</label>
-                    <input type="date" id="form-fecha" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                    <p class="text-[9px] text-fb-silver mt-1 ml-1">Tiempo mínimo de producción y envío: 5 días hábiles, sujeto al volumen de compra y destino de envío. Nuestros asesores le confirmarán la fecha de entrega junto con su cotización final.</p>
-                </div>
-                <div>
-                    <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Método de pago preferido *</label>
-                    <select id="form-pago" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
-                        <option value="">Selecciona...</option>
-                        <option value="Transferencia">Transferencia bancaria</option>
-                        <option value="Depósito">Depósito bancario</option>
-                        <option value="Tarjeta CLIP">Tarjeta de crédito/débito (CLIP)</option>
-                    </select>
-                </div>
-            </div>
+            <!-- Formulario de datos (se muestra según el modo) -->
+            <div id="form-container" class="hidden">
 
-            <!-- SECCIÓN 4: Personalización y facturación -->
-            <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-6">
-                <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
-                    <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">4</span>
-                    Personalización y facturación
-                </h3>
-                <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
-                    <input type="checkbox" id="check-personalizar" class="w-5 h-5 rounded" onchange="togglePersonalizacion()">
-                    <span class="text-xs font-bold text-fb-dark">¿Deseas personalizar tus vasos?</span>
-                </label>
-                <div id="opciones-logo" class="hidden pl-4 space-y-2 border-l-2 border-fb-dark/30">
-                    <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
-                        <input type="radio" name="logo-tipo" value="Tengo vector PDF/AI" checked> Tengo logo vectorizado (PDF/AI)
-                    </label>
-                    <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
-                        <input type="radio" name="logo-tipo" value="Tengo imagen PNG"> Tengo solo una imagen (PNG/JPG)
-                    </label>
-                    <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
-                        <input type="radio" name="logo-tipo" value="Necesito diseño"> Necesito que diseñen mi logo
-                    </label>
-                </div>
-                <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
-                    <input type="checkbox" id="check-nombres" class="w-5 h-5 rounded">
-                    <span class="text-xs font-bold text-fb-dark">Agregar nombres individuales</span>
-                </label>
-                <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
-                    <input type="checkbox" id="check-factura" class="w-5 h-5 rounded" onchange="toggleFactura()">
-                    <span class="text-xs font-bold text-fb-dark">Requiero factura</span>
-                </label>
-                <div id="aviso-factura" class="hidden pl-4 border-l-2 border-fb-dark/30 space-y-3">
+                <!-- SECCIÓN 1: Datos básicos (siempre visible en ambos modos) -->
+                <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
+                    <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
+                        <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">1</span>
+                        Datos de contacto
+                    </h3>
                     <div>
-                        <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">RFC *</label>
-                        <input type="text" id="form-rfc" placeholder="Ej: XAXX010101000" maxlength="13" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all uppercase" style="text-transform:uppercase;">
+                        <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Contacto *</label>
+                        <input type="text" id="form-nombre" placeholder="Ej: Juan Pérez" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
                     </div>
-                    <div class="aviso-factura">
-                        <strong>Importante:</strong> Para facturar, adjunta tu <strong>Constancia de Situación Fiscal</strong> (PDF) en la conversación de WhatsApp.
-                        <br><br>
-                        <span class="text-[10px] text-fb-silver">Si aún no la tienes: <a href="https://www.sat.gob.mx" target="_blank" class="underline text-fb-dark hover:text-fb-mid">sat.gob.mx</a></span>
+                    <div>
+                        <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Teléfono *</label>
+                        <input type="tel" id="form-telefono" placeholder="Ej: 9983210480" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                    </div>
+                    <!-- Campos extra visibles solo en modo rápido -->
+                    <div id="rapido-nota" class="hidden">
+                        <p class="text-[10px] text-fb-mid bg-white p-3 rounded-xl border border-fb-light leading-relaxed">Enviaremos tu lista de productos junto con tus datos. Un asesor te contactará por WhatsApp para resolver tus dudas y brindarte la cotización.</p>
                     </div>
                 </div>
-            </div>
-            <button onclick="enviarWhatsApp()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-2xl shadow-lg flex justify-center items-center gap-3 text-lg uppercase tracking-tight transition-all transform active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                Generar Pedido por WhatsApp
-            </button>
+
+                <!-- SECCIONES COMPLETAS (ocultas en modo rápido) -->
+                <div id="secciones-completas">
+
+                    <!-- Datos personales extra -->
+                    <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
+                        <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
+                            <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">2</span>
+                            Datos adicionales
+                        </h3>
+                        <div>
+                            <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Empresa <span class="text-fb-silver">(opcional)</span></label>
+                            <input type="text" id="form-empresa" placeholder="Ej: Mi Empresa S.A. de C.V." class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Correo electrónico <span class="text-fb-silver">(opcional)</span></label>
+                            <input type="email" id="form-correo" placeholder="Ej: correo@ejemplo.com" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: Datos de envío -->
+                    <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
+                        <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
+                            <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">3</span>
+                            Datos de envío
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Ciudad *</label>
+                                <input type="text" id="form-ciudad" placeholder="Ej: Cancún" oninput="verificarPickup()" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">C.P. *</label>
+                                <input type="text" id="form-cp" placeholder="Ej: 77500" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Estado *</label>
+                            <input type="text" id="form-estado" placeholder="Ej: Quintana Roo" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                        </div>
+                        <div id="pickup-container" class="hidden">
+                            <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
+                                <input type="checkbox" id="check-pickup" class="w-5 h-5 rounded">
+                                <span class="text-xs font-bold text-fb-dark">Prefiero recoger en sucursal (Pick Up - Cancún)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: Detalles del pedido -->
+                    <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-4">
+                        <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
+                            <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">4</span>
+                            Detalles del pedido
+                        </h3>
+                        <div>
+                            <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Tipo de pedido *</label>
+                            <select id="form-tipo-pedido" onchange="toggleOtroTipo()" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                                <option value="">Selecciona...</option>
+                                <option value="Boda">Boda</option>
+                                <option value="Evento">Evento</option>
+                                <option value="Corporativo">Corporativo</option>
+                                <option value="Regalo personal">Regalo personal</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div id="otro-tipo-container" class="hidden">
+                            <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Especifica *</label>
+                            <input type="text" id="form-otro-tipo" placeholder="Ej: Quinceañera, Baby shower..." class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Fecha que lo necesitas *</label>
+                            <input type="date" id="form-fecha" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                            <p class="text-[9px] text-fb-silver mt-1 ml-1">Tiempo mínimo de producción y envío: 5 días hábiles, sujeto al volumen de compra y destino de envío. Nuestros asesores le confirmarán la fecha de entrega junto con su cotización final.</p>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">Método de pago preferido *</label>
+                            <select id="form-pago" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all">
+                                <option value="">Selecciona...</option>
+                                <option value="Transferencia">Transferencia bancaria</option>
+                                <option value="Depósito">Depósito bancario</option>
+                                <option value="Tarjeta CLIP">Tarjeta de crédito/débito (CLIP)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: Personalización y facturación -->
+                    <div class="bg-fb-cream p-5 rounded-2xl border border-fb-light space-y-3 mb-6">
+                        <h3 class="text-[10px] font-black text-fb-dark uppercase tracking-widest flex items-center gap-2">
+                            <span class="bg-fb-dark text-white w-5 h-5 rounded-full flex items-center justify-center text-[9px]">5</span>
+                            Personalización y facturación
+                        </h3>
+                        <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
+                            <input type="checkbox" id="check-personalizar" class="w-5 h-5 rounded" onchange="togglePersonalizacion()">
+                            <span class="text-xs font-bold text-fb-dark">¿Deseas personalizar tus vasos?</span>
+                        </label>
+                        <div id="opciones-logo" class="hidden pl-4 space-y-2 border-l-2 border-fb-dark/30">
+                            <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
+                                <input type="radio" name="logo-tipo" value="Tengo vector PDF/AI" checked> Tengo logo vectorizado (PDF/AI)
+                            </label>
+                            <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
+                                <input type="radio" name="logo-tipo" value="Tengo imagen PNG"> Tengo solo una imagen (PNG/JPG)
+                            </label>
+                            <label class="flex items-center gap-2 text-[11px] text-fb-mid cursor-pointer hover:text-fb-dark transition-colors">
+                                <input type="radio" name="logo-tipo" value="Necesito diseño"> Necesito que diseñen mi logo
+                            </label>
+                        </div>
+                        <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
+                            <input type="checkbox" id="check-nombres" class="w-5 h-5 rounded">
+                            <span class="text-xs font-bold text-fb-dark">Agregar nombres individuales</span>
+                        </label>
+                        <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-fb-light hover:border-fb-mid transition-colors cursor-pointer">
+                            <input type="checkbox" id="check-factura" class="w-5 h-5 rounded" onchange="toggleFactura()">
+                            <span class="text-xs font-bold text-fb-dark">Requiero factura</span>
+                        </label>
+                        <div id="aviso-factura" class="hidden pl-4 border-l-2 border-fb-dark/30 space-y-3">
+                            <div>
+                                <label class="block text-[10px] text-fb-mid uppercase font-black mb-1 ml-1 tracking-widest">RFC *</label>
+                                <input type="text" id="form-rfc" placeholder="Ej: XAXX010101000" maxlength="13" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all uppercase" style="text-transform:uppercase;">
+                            </div>
+                            <div class="aviso-factura">
+                                <strong>Importante:</strong> Para facturar, adjunta tu <strong>Constancia de Situación Fiscal</strong> (PDF) en la conversación de WhatsApp.
+                                <br><br>
+                                <span class="text-[10px] text-fb-silver">Si aún no la tienes: <a href="https://www.sat.gob.mx" target="_blank" class="underline text-fb-dark hover:text-fb-mid">sat.gob.mx</a></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /secciones-completas -->
+
+                <!-- Botón de envío -->
+                <button onclick="enviarWhatsApp()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-2xl shadow-lg flex justify-center items-center gap-3 text-lg uppercase tracking-tight transition-all transform active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    <span id="btn-enviar-texto">Enviar por WhatsApp</span>
+                </button>
+                <button onclick="setModo(null)" class="w-full text-fb-mid text-[10px] font-black uppercase tracking-widest mt-3 hover:text-fb-dark transition-colors">← Cambiar modo</button>
+
+            </div><!-- /form-container -->
+
             <button onclick="toggleCarrito()" class="w-full text-fb-silver text-[10px] font-black uppercase tracking-widest mt-4 hover:text-fb-dark transition-colors">Seguir Navegando</button>
         </div>
     </div>
@@ -723,6 +766,48 @@
         function toggleFactura() { document.getElementById('aviso-factura').style.display = document.getElementById('check-factura').checked ? 'block' : 'none'; }
         function toggleOtroTipo() { document.getElementById('otro-tipo-container').style.display = document.getElementById('form-tipo-pedido').value === 'Otro' ? 'block' : 'none'; }
 
+        // ============================================
+        // MODO: Cotización rápida vs Pedido completo
+        // ============================================
+        let modoActual = null; // 'rapido' o 'completo'
+
+        function setModo(modo) {
+            modoActual = modo;
+            const selector = document.getElementById('modo-selector');
+            const formContainer = document.getElementById('form-container');
+            const seccionesCompletas = document.getElementById('secciones-completas');
+            const rapidoNota = document.getElementById('rapido-nota');
+            const btnTexto = document.getElementById('btn-enviar-texto');
+            const btnRapido = document.getElementById('btn-modo-rapido');
+            const btnCompleto = document.getElementById('btn-modo-completo');
+
+            if (!modo) {
+                // Volver a mostrar selector
+                selector.classList.remove('hidden');
+                formContainer.classList.add('hidden');
+                btnRapido.classList.remove('border-fb-dark', 'bg-white');
+                btnCompleto.classList.remove('border-fb-dark', 'bg-white');
+                return;
+            }
+
+            selector.classList.add('hidden');
+            formContainer.classList.remove('hidden');
+
+            if (modo === 'rapido') {
+                seccionesCompletas.classList.add('hidden');
+                rapidoNota.classList.remove('hidden');
+                btnTexto.textContent = 'Solicitar cotización por WhatsApp';
+                btnRapido.classList.add('border-fb-dark', 'bg-white');
+                btnCompleto.classList.remove('border-fb-dark', 'bg-white');
+            } else {
+                seccionesCompletas.classList.remove('hidden');
+                rapidoNota.classList.add('hidden');
+                btnTexto.textContent = 'Generar pedido por WhatsApp';
+                btnCompleto.classList.add('border-fb-dark', 'bg-white');
+                btnRapido.classList.remove('border-fb-dark', 'bg-white');
+            }
+        }
+
         function verificarPickup() {
             const ciudad = document.getElementById('form-ciudad').value.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             const show = ciudad === 'cancun' || ciudad === 'cancún';
@@ -748,9 +833,54 @@
 
         function enviarWhatsApp() {
             if (!carrito.length) return alert('El carrito está vacío.');
-            const empresa = document.getElementById('form-empresa').value.trim();
             const nom = document.getElementById('form-nombre').value.trim();
             const tel = document.getElementById('form-telefono').value.trim();
+
+            // Validaciones básicas (ambos modos)
+            if (!nom) return alert('Ingresa el nombre de contacto.');
+            if (!tel) return alert('Ingresa tu teléfono.');
+
+            const totalPiezas = carrito.reduce((s, i) => s + i.cant, 0);
+            let sub = 0;
+            const pedidoId = generarIdPedido();
+            const now = new Date();
+            const fechaHoy = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+            const hora = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const fmt = (n) => n.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+            // ── MODO RÁPIDO ──
+            if (modoActual === 'rapido') {
+                let msg = '>> COTIZACIÓN RÁPIDA - FB DRINKWARE\n';
+                msg += '================================\n';
+                msg += `# ID: ${pedidoId}\n`;
+                msg += `# Fecha: ${fechaHoy} - ${hora} hrs\n`;
+                msg += `# Tipo: Cotización rápida\n\n`;
+
+                msg += '>> CONTACTO\n';
+                msg += `- Nombre: ${nom}\n`;
+                msg += `- Teléfono: ${tel}\n\n`;
+
+                msg += `>> PRODUCTOS DE INTERÉS (${totalPiezas} piezas)\n`;
+                msg += 'SKU       | CANT | P.UNIT | PRODUCTO\n';
+                msg += '--------------------------------------\n';
+                carrito.forEach(i => {
+                    sub += i.precio * i.cant;
+                    msg += `${i.sku.padEnd(9)} | ${String(i.cant).padStart(4)} | $${String(i.precio).padStart(4)} | ${i.nombre}\n`;
+                });
+                msg += `\n- Subtotal ref.: $${fmt(sub)} MXN\n\n`;
+
+                msg += '>> ORIGEN\n';
+                msg += `- Campaña: ${getUtmCampaign()}\n`;
+                msg += '================================\n';
+                msg += 'Hola, me interesan estos productos. Me gustaría recibir una cotización y resolver algunas dudas. Gracias.';
+
+                window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
+                setTimeout(() => { location.reload(); }, 500);
+                return;
+            }
+
+            // ── MODO COMPLETO ──
+            const empresa = document.getElementById('form-empresa').value.trim();
             const correo = document.getElementById('form-correo').value.trim();
             const ciudad = document.getElementById('form-ciudad').value.trim();
             const estado = document.getElementById('form-estado').value.trim();
@@ -761,9 +891,7 @@
             const fechaReq = document.getElementById('form-fecha').value;
             const metodoPago = document.getElementById('form-pago').value;
 
-            // Validaciones
-            if (!nom) return alert('Ingresa el nombre de contacto.');
-            if (!tel) return alert('Ingresa tu teléfono.');
+            // Validaciones completas
             if (!ciudad) return alert('Ingresa tu ciudad.');
             if (!estado) return alert('Ingresa tu estado.');
             if (!cp) return alert('Ingresa tu Código Postal.');
@@ -780,25 +908,16 @@
 
             if (fact && !rfc) return alert('Ingresa tu RFC para facturación.');
 
-            const totalPiezas = carrito.reduce((s, i) => s + i.cant, 0);
-            let sub = 0;
             const envioGratis = totalPiezas >= 50;
-            const pedidoId = generarIdPedido();
-            const now = new Date();
-            const fechaHoy = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
-            const hora = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
             const tipoFinal = tipoPedido === 'Otro' ? `Otro: ${otroTipo}` : tipoPedido;
-
-            // Formatear fecha requerida
             const fr = fechaReq.split('-');
             const fechaReqFmt = fr.length === 3 ? `${fr[2]}/${fr[1]}/${fr[0]}` : fechaReq;
-
-            const fmt = (n) => n.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
 
             let msg = '>> NUEVO PEDIDO - FB DRINKWARE\n';
             msg += '================================\n';
             msg += `# ID: ${pedidoId}\n`;
-            msg += `# Fecha: ${fechaHoy} - ${hora} hrs\n\n`;
+            msg += `# Fecha: ${fechaHoy} - ${hora} hrs\n`;
+            msg += `# Tipo: Pedido completo\n\n`;
 
             msg += '>> CLIENTE\n';
             if (empresa) msg += `- Empresa: ${empresa}\n`;
