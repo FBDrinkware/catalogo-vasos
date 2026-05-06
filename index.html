@@ -50,8 +50,7 @@
             position: absolute; top: 10px; left: 10px; background: rgba(24,66,115,0.85);
             color: white; padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase;
             z-index: 20; cursor: pointer; transition: transform 0.2s, background 0.2s;
-            display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px);
-        }
+            display: flex; align-items: center; gap: 4px; }
         .badge-ficha:hover { transform: scale(1.1); background: rgba(24,66,115,1); }
         /* Modal ficha técnica */
         #modal-ficha { transition: opacity 0.3s ease, visibility 0.3s ease; opacity: 0; visibility: hidden; }
@@ -117,7 +116,7 @@
 </head>
 <body class="bg-fb-cream text-fb-dark pb-24">
 
-    <header class="p-4 md:p-6 bg-white border-b border-fb-light/50 sticky top-0 z-50 backdrop-blur-md bg-opacity-90 shadow-sm">
+    <header class="p-4 md:p-6 bg-white border-b border-fb-light/50 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-center gap-4">
             <img src="https://i.ibb.co/JJkc7fk/Logo.png" alt="FB Drinkware" class="h-10 md:h-12 object-contain">
             <div class="text-center">
@@ -129,7 +128,7 @@
         <div class="absolute bottom-[-1px] left-1/2 -translate-x-1/2 w-48 h-[2px] bg-fb-dark rounded-full"></div>
     </header>
 
-    <div id="filtros-oz" class="sticky top-[73px] z-40 bg-fb-cream/95 backdrop-blur-sm border-b border-fb-light/30 px-4 py-3">
+    <div id="filtros-oz" class="sticky top-[73px] z-40 bg-fb-cream border-b border-fb-light/30 px-4 py-3">
         <div class="flex gap-2 max-w-7xl mx-auto items-center flex-wrap md:flex-nowrap">
             <!-- Buscador -->
             <div class="relative w-full md:w-56 flex-shrink-0 order-1 md:order-none">
@@ -147,14 +146,14 @@
         </div>
     </div>
 
+    <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-4">
+        <div class="col-span-full text-center py-20 text-fb-silver animate-pulse font-mono text-xs uppercase tracking-widest">SINCRONIZANDO INVENTARIO...</div>
+    </main>
+
     <!-- Características de los vasos -->
     <section class="max-w-4xl mx-auto px-4 py-6">
         <img src="https://i.ibb.co/DDmkVn3Y/Caracter-sticas-Vasos.png" alt="Características de nuestros vasos - Doble pared, libre de BPA, fácil de limpiar" class="w-full rounded-2xl shadow-lg border border-fb-light">
     </section>
-
-    <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-4">
-        <div class="col-span-full text-center py-20 text-fb-silver animate-pulse font-mono text-xs uppercase tracking-widest">SINCRONIZANDO INVENTARIO...</div>
-    </main>
 
     <!-- Clientes que confían en nosotros -->
     <section class="max-w-4xl mx-auto px-4 py-6">
@@ -215,7 +214,7 @@
     </footer>
 
     <!-- Modal Legal (Privacidad / Términos) -->
-    <div id="modal-legal" class="fixed inset-0 bg-black/90 z-[300] flex items-center justify-center p-4 backdrop-blur-sm" onclick="cerrarLegal()">
+    <div id="modal-legal" class="fixed inset-0 bg-black/90 z-[300] flex items-center justify-center p-4 " onclick="cerrarLegal()">
         <div class="bg-white w-full max-w-2xl rounded-2xl p-6 md:p-8 border border-fb-light shadow-2xl overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-6 border-b border-fb-light pb-4">
                 <h2 id="legal-titulo" class="text-lg font-black text-fb-dark uppercase tracking-tight"></h2>
@@ -234,7 +233,7 @@
         </button>
     </div>
 
-    <div id="modal-imagen" class="fixed inset-0 bg-black/95 z-[300] flex items-center justify-center p-4 backdrop-blur-sm cursor-zoom-out" onclick="cerrarImagen()">
+    <div id="modal-imagen" class="fixed inset-0 bg-black/95 z-[300] flex items-center justify-center p-4 cursor-zoom-out" onclick="cerrarImagen()">
         <button class="absolute top-6 right-6 text-white/70 hover:text-white z-50 bg-gray-900/50 p-2 rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
@@ -242,7 +241,7 @@
     </div>
 
     <!-- Modal Ficha Técnica -->
-    <div id="modal-ficha" class="fixed inset-0 bg-black/95 z-[300] flex flex-col items-center justify-center p-4 backdrop-blur-sm" onclick="cerrarFicha()">
+    <div id="modal-ficha" class="fixed inset-0 bg-black/95 z-[300] flex flex-col items-center justify-center p-4 " onclick="cerrarFicha()">
         <button class="absolute top-6 right-6 text-white/70 hover:text-white z-50 bg-gray-900/50 p-2 rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
@@ -260,7 +259,7 @@
         </div>
     </div>
 
-    <div id="modal-carrito" class="fixed inset-0 bg-black/90 hidden z-[200] p-4 flex items-center justify-center backdrop-blur-lg">
+    <div id="modal-carrito" class="fixed inset-0 bg-black/80 hidden z-[200] p-4 flex items-center justify-center">
         <div class="bg-white w-full max-w-lg rounded-[2rem] p-6 md:p-8 border border-fb-light shadow-2xl overflow-y-auto max-h-[90vh]">
             <h2 class="text-2xl font-black mb-6 text-fb-dark tracking-tighter uppercase italic border-b border-fb-light pb-2">Tu Pedido</h2>
             <div id="lista-carrito" class="space-y-3 mb-4 pr-1 overflow-y-auto max-h-60"></div>
