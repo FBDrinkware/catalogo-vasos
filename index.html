@@ -145,14 +145,14 @@
         </div>
     </div>
 
-    <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-4">
-        <div class="col-span-full text-center py-20 text-fb-silver animate-pulse font-mono text-xs uppercase tracking-widest">SINCRONIZANDO INVENTARIO...</div>
-    </main>
-
     <!-- Características de los vasos -->
     <section class="max-w-4xl mx-auto px-4 py-6">
         <img src="https://i.ibb.co/DDmkVn3Y/Caracter-sticas-Vasos.png" alt="Características de nuestros vasos - Doble pared, libre de BPA, fácil de limpiar" class="w-full rounded-2xl shadow-lg border border-fb-light">
     </section>
+
+    <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-4">
+        <div class="col-span-full text-center py-20 text-fb-silver animate-pulse font-mono text-xs uppercase tracking-widest">SINCRONIZANDO INVENTARIO...</div>
+    </main>
 
     <!-- Clientes que confían en nosotros -->
     <section class="max-w-4xl mx-auto px-4 py-6">
@@ -1237,6 +1237,49 @@
             mostrarOnbStep();
         }
 
+        function posicionarOnbTooltip(el, step) {
+            const rect = el.getBoundingClientRect();
+            const pad = 8;
+            const tw = 280;
+            const th = onbTooltip.offsetHeight || 130;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            // Highlight
+            onbHighlight.style.top    = (rect.top  - pad) + 'px';
+            onbHighlight.style.left   = (rect.left - pad) + 'px';
+            onbHighlight.style.width  = (rect.width  + pad * 2) + 'px';
+            onbHighlight.style.height = (rect.height + pad * 2) + 'px';
+
+            // Posición preferida según step.pos
+            let top, left;
+            if (step.pos === 'bottom') {
+                top  = rect.bottom + pad + 12;
+                left = rect.left + rect.width / 2 - tw / 2;
+            } else if (step.pos === 'left') {
+                top  = rect.top + rect.height / 2 - th / 2;
+                left = rect.left - tw - 16;
+                // Si no hay espacio a la izquierda, poner a la derecha
+                if (left < 10) left = rect.right + 16;
+            } else {
+                top  = rect.top - th - 12;
+                left = rect.left + rect.width / 2 - tw / 2;
+            }
+
+            // Clamp horizontal
+            left = Math.max(10, Math.min(left, vw - tw - 10));
+
+            // Clamp vertical: si se sale por abajo → intentar arriba; si tampoco → centrar en viewport
+            if (top + th > vh - 10) {
+                const topAlt = rect.top - th - 12;
+                top = (topAlt >= 10) ? topAlt : Math.max(10, vh / 2 - th / 2);
+            }
+            if (top < 10) top = 10;
+
+            onbTooltip.style.top  = top + 'px';
+            onbTooltip.style.left = left + 'px';
+        }
+
         function mostrarOnbStep() {
             if (onbStep >= ONB_STEPS.length) { cerrarOnboarding(); return; }
 
@@ -1249,7 +1292,7 @@
                 cerrarOnboarding(); return;
             }
 
-            // Tooltip content (se arma antes de posicionar para poder medir su altura)
+            // 1. Renderizar contenido del tooltip primero
             onbTooltip.innerHTML = `
                 <div class="onb-title">${step.title}</div>
                 <div class="onb-desc">${step.desc}</div>
@@ -1260,50 +1303,16 @@
                 </div>
             `;
 
-            // Scroll al elemento para asegurar que esté en el viewport, luego posicionar
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // 2. Posicionar inmediatamente con coords actuales (tooltip visible de entrada)
+            posicionarOnbTooltip(el, step);
 
-            // Esperar a que el scroll termine antes de calcular posición final
-            setTimeout(function () {
-                const rect = el.getBoundingClientRect();
-                const pad = 8;
-                const tw = 280;
-                const th = onbTooltip.offsetHeight || 130; // altura real del tooltip
-                const vw = window.innerWidth;
-                const vh = window.innerHeight;
-
-                // Highlight del elemento
-                onbHighlight.style.top  = (rect.top  - pad) + 'px';
-                onbHighlight.style.left = (rect.left - pad) + 'px';
-                onbHighlight.style.width  = (rect.width  + pad * 2) + 'px';
-                onbHighlight.style.height = (rect.height + pad * 2) + 'px';
-
-                // Calcular posición preferida según step.pos
-                let top, left;
-                if (step.pos === 'bottom') {
-                    top  = rect.bottom + pad + 12;
-                    left = rect.left + rect.width / 2 - tw / 2;
-                } else if (step.pos === 'left') {
-                    top  = rect.top + rect.height / 2 - th / 2;
-                    left = rect.left - tw - 16;
-                } else { // 'top' u otro
-                    top  = rect.top - th - 12;
-                    left = rect.left + rect.width / 2 - tw / 2;
-                }
-
-                // Clamp horizontal
-                left = Math.max(10, Math.min(left, vw - tw - 10));
-
-                // Clamp vertical: si se sale por abajo, intentar arriba; si tampoco cabe, al centro
-                if (top + th > vh - 10) {
-                    const topAlt = rect.top - th - 12;
-                    top = (topAlt >= 10) ? topAlt : Math.max(10, vh / 2 - th / 2);
-                }
-                if (top < 10) top = 10;
-
-                onbTooltip.style.top  = top + 'px';
-                onbTooltip.style.left = left + 'px';
-            }, 400); // 400 ms da tiempo suficiente al scroll suave
+            // 3. Si el elemento está fuera del viewport, hacer scroll y reposicionar
+            const rect0 = el.getBoundingClientRect();
+            const fueraViewport = rect0.top < 0 || rect0.bottom > window.innerHeight;
+            if (fueraViewport) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function () { posicionarOnbTooltip(el, step); }, 450);
+            }
         }
 
         function siguienteOnb() {
