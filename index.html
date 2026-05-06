@@ -226,10 +226,15 @@
     </div>
 
     <div class="cart-float">
-        <button onclick="toggleCarrito()" class="bg-fb-dark hover:bg-fb-mid text-white p-5 rounded-full shadow-lg flex items-center gap-3 transition-all transform hover:scale-110 active:scale-95">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-            <span id="cart-count" class="font-black text-2xl">0</span>
-        </button>
+        <div class="flex flex-col items-end gap-3">
+            <button onclick="reiniciarOnboarding()" class="bg-white text-fb-dark hover:bg-fb-cream border-2 border-fb-light p-3 rounded-full shadow-lg transition-all transform hover:scale-110 active:scale-95" title="¿Cómo usar el catálogo?">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </button>
+            <button onclick="toggleCarrito()" class="bg-fb-dark hover:bg-fb-mid text-white p-5 rounded-full shadow-lg flex items-center gap-3 transition-all transform hover:scale-110 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                <span id="cart-count" class="font-black text-2xl">0</span>
+            </button>
+        </div>
     </div>
 
     <div id="modal-imagen" class="fixed inset-0 bg-black/95 z-[300] flex items-center justify-center p-4 backdrop-blur-sm cursor-zoom-out" onclick="cerrarImagen()">
@@ -1325,6 +1330,17 @@
             if (onbOverlay) onbOverlay.remove();
             if (onbTooltip) onbTooltip.remove();
             if (onbHighlight) onbHighlight.remove();
+        }
+
+        function reiniciarOnboarding() {
+            localStorage.removeItem('fbk_onb_done');
+            // Limpiar elementos previos si existen
+            if (onbOverlay) onbOverlay.remove();
+            if (onbTooltip) onbTooltip.remove();
+            if (onbHighlight) onbHighlight.remove();
+            // Scroll al inicio
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(iniciarOnboarding, 500);
         }
 
         (function setMinFecha() {
