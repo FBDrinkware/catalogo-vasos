@@ -50,7 +50,8 @@
             position: absolute; top: 10px; left: 10px; background: rgba(24,66,115,0.85);
             color: white; padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase;
             z-index: 20; cursor: pointer; transition: transform 0.2s, background 0.2s;
-            display: flex; align-items: center; gap: 4px; }
+            display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px);
+        }
         .badge-ficha:hover { transform: scale(1.1); background: rgba(24,66,115,1); }
         /* Modal ficha técnica */
         #modal-ficha { transition: opacity 0.3s ease, visibility 0.3s ease; opacity: 0; visibility: hidden; }
@@ -78,45 +79,43 @@
         /* Modal legal */
         #modal-legal { transition: opacity 0.3s ease, visibility 0.3s ease; opacity: 0; visibility: hidden; }
         #modal-legal.show { opacity: 1; visibility: visible; }
-        /* ── Onboarding ───────────────────────────────────────── */
+        /* Onboarding overlay */
         #onboarding-overlay {
-            position: fixed; inset: 0; z-index: 9000;
-            background: transparent;
-            pointer-events: none;           /* el overlay NO bloquea clics */
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.6);
+            transition: opacity 0.3s ease;
         }
-        .onb-highlight {
-            position: fixed; z-index: 9001;
-            border-radius: 10px;
-            box-shadow: 0 0 0 9999px rgba(0,0,0,0.62);
-            pointer-events: none;
-            top: 50%; left: 50%;            /* inofensivo hasta posicionarse */
-            width: 0; height: 0;
-        }
+        #onboarding-overlay.hide { opacity: 0; pointer-events: none; }
         .onb-tooltip {
-            position: fixed; z-index: 9002;
-            background: #fff; color: #184273;
+            position: fixed; z-index: 10000;
+            background: white; color: #184273;
             padding: 16px 18px; border-radius: 12px;
-            width: 280px; max-width: calc(100vw - 24px);
-            box-sizing: border-box;
-            font-size: 13px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.28);
+            max-width: 280px; font-size: 13px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
             border: 2px solid #184273;
-            pointer-events: auto;           /* botones SIEMPRE clicables */
+            transition: opacity 0.3s, transform 0.3s;
         }
         .onb-tooltip .onb-title { font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-        .onb-tooltip .onb-desc  { font-size: 12px; color: #566876; line-height: 1.5; margin-bottom: 12px; }
-        .onb-tooltip .onb-nav   { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .onb-tooltip .onb-desc { font-size: 12px; color: #566876; line-height: 1.5; margin-bottom: 12px; }
+        .onb-tooltip .onb-nav { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .onb-tooltip .onb-counter { font-size: 10px; color: #b1afaf; font-weight: 700; }
-        .onb-tooltip .onb-btn   { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer; border: none; }
+        .onb-tooltip .onb-btn { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s; }
         .onb-btn-skip { background: none; color: #b1afaf; }
         .onb-btn-skip:hover { color: #184273; }
         .onb-btn-next { background: #184273; color: white; }
         .onb-btn-next:hover { background: #566876; }
+        .onb-highlight {
+            position: fixed; z-index: 9999;
+            border-radius: 12px;
+            box-shadow: 0 0 0 4000px rgba(0,0,0,0.6);
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="bg-fb-cream text-fb-dark pb-24">
 
-    <header class="p-4 md:p-6 bg-white border-b border-fb-light/50 sticky top-0 z-50 shadow-sm">
+    <header class="p-4 md:p-6 bg-white border-b border-fb-light/50 sticky top-0 z-50 backdrop-blur-md bg-opacity-90 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-center gap-4">
             <img src="https://i.ibb.co/JJkc7fk/Logo.png" alt="FB Drinkware" class="h-10 md:h-12 object-contain">
             <div class="text-center">
@@ -128,7 +127,7 @@
         <div class="absolute bottom-[-1px] left-1/2 -translate-x-1/2 w-48 h-[2px] bg-fb-dark rounded-full"></div>
     </header>
 
-    <div id="filtros-oz" class="sticky top-[73px] z-40 bg-fb-cream border-b border-fb-light/30 px-4 py-3">
+    <div id="filtros-oz" class="sticky top-[73px] z-40 bg-fb-cream/95 backdrop-blur-sm border-b border-fb-light/30 px-4 py-3">
         <div class="flex gap-2 max-w-7xl mx-auto items-center flex-wrap md:flex-nowrap">
             <!-- Buscador -->
             <div class="relative w-full md:w-56 flex-shrink-0 order-1 md:order-none">
@@ -146,14 +145,14 @@
         </div>
     </div>
 
+    <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-4">
+        <div class="col-span-full text-center py-20 text-fb-silver animate-pulse font-mono text-xs uppercase tracking-widest">SINCRONIZANDO INVENTARIO...</div>
+    </main>
+
     <!-- Características de los vasos -->
     <section class="max-w-4xl mx-auto px-4 py-6">
         <img src="https://i.ibb.co/DDmkVn3Y/Caracter-sticas-Vasos.png" alt="Características de nuestros vasos - Doble pared, libre de BPA, fácil de limpiar" class="w-full rounded-2xl shadow-lg border border-fb-light">
     </section>
-
-    <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-4">
-        <div class="col-span-full text-center py-20 text-fb-silver animate-pulse font-mono text-xs uppercase tracking-widest">SINCRONIZANDO INVENTARIO...</div>
-    </main>
 
     <!-- Clientes que confían en nosotros -->
     <section class="max-w-4xl mx-auto px-4 py-6">
@@ -214,7 +213,7 @@
     </footer>
 
     <!-- Modal Legal (Privacidad / Términos) -->
-    <div id="modal-legal" class="fixed inset-0 bg-black/90 z-[300] flex items-center justify-center p-4 " onclick="cerrarLegal()">
+    <div id="modal-legal" class="fixed inset-0 bg-black/90 z-[300] flex items-center justify-center p-4 backdrop-blur-sm" onclick="cerrarLegal()">
         <div class="bg-white w-full max-w-2xl rounded-2xl p-6 md:p-8 border border-fb-light shadow-2xl overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-6 border-b border-fb-light pb-4">
                 <h2 id="legal-titulo" class="text-lg font-black text-fb-dark uppercase tracking-tight"></h2>
@@ -233,7 +232,7 @@
         </button>
     </div>
 
-    <div id="modal-imagen" class="fixed inset-0 bg-black/95 z-[300] flex items-center justify-center p-4 cursor-zoom-out" onclick="cerrarImagen()">
+    <div id="modal-imagen" class="fixed inset-0 bg-black/95 z-[300] flex items-center justify-center p-4 backdrop-blur-sm cursor-zoom-out" onclick="cerrarImagen()">
         <button class="absolute top-6 right-6 text-white/70 hover:text-white z-50 bg-gray-900/50 p-2 rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
@@ -241,7 +240,7 @@
     </div>
 
     <!-- Modal Ficha Técnica -->
-    <div id="modal-ficha" class="fixed inset-0 bg-black/95 z-[300] flex flex-col items-center justify-center p-4 " onclick="cerrarFicha()">
+    <div id="modal-ficha" class="fixed inset-0 bg-black/95 z-[300] flex flex-col items-center justify-center p-4 backdrop-blur-sm" onclick="cerrarFicha()">
         <button class="absolute top-6 right-6 text-white/70 hover:text-white z-50 bg-gray-900/50 p-2 rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
@@ -259,7 +258,7 @@
         </div>
     </div>
 
-    <div id="modal-carrito" class="fixed inset-0 bg-black/80 hidden z-[200] p-4 flex items-center justify-center">
+    <div id="modal-carrito" class="fixed inset-0 bg-black/90 hidden z-[200] p-4 flex items-center justify-center backdrop-blur-lg">
         <div class="bg-white w-full max-w-lg rounded-[2rem] p-6 md:p-8 border border-fb-light shadow-2xl overflow-y-auto max-h-[90vh]">
             <h2 class="text-2xl font-black mb-6 text-fb-dark tracking-tighter uppercase italic border-b border-fb-light pb-2">Tu Pedido</h2>
             <div id="lista-carrito" class="space-y-3 mb-4 pr-1 overflow-y-auto max-h-60"></div>
@@ -1238,100 +1237,66 @@
             mostrarOnbStep();
         }
 
-        /* ── Onboarding positioning ──────────────────────────────────── */
-        function onbPlace(el, step) {
-            /* Medidas reales del viewport para position:fixed              */
-            /* En Android Chrome el layout viewport == window.inner*        */
-            /* visualViewport.offsetTop == desplazamiento por barra URL     */
-            var vp   = window.visualViewport;
-            var vw   = vp ? vp.width  : window.innerWidth;
-            var vh   = vp ? vp.height : window.innerHeight;
-            var vpOY = vp ? vp.offsetTop  : 0;   /* px que la barra URL "roba" arriba */
-            var vpOX = vp ? vp.offsetLeft : 0;
-
-            var rect = el.getBoundingClientRect();
-            var pad  = 8;
-            var TW   = Math.min(280, vw - 24);
-            var th   = onbTooltip.offsetHeight || 140;
-
-            /* ── Highlight ───────────────────────────────────────────── */
-            onbHighlight.style.width  = (rect.width  + pad*2) + 'px';
-            onbHighlight.style.height = (rect.height + pad*2) + 'px';
-            onbHighlight.style.top    = (rect.top  + vpOY - pad) + 'px';
-            onbHighlight.style.left   = (rect.left + vpOX - pad) + 'px';
-
-            /* ── Posición preferida ──────────────────────────────────── */
-            var top, left;
-            if (step.pos === 'bottom') {
-                top  = rect.top  + vpOY + rect.height + pad + 10;
-                left = rect.left + vpOX + rect.width/2 - TW/2;
-            } else if (step.pos === 'left') {
-                top  = rect.top  + vpOY + rect.height/2 - th/2;
-                left = rect.left + vpOX - TW - 14;
-                if (left < vpOX + 10) left = rect.right + vpOX + 14;
-            } else {
-                top  = rect.top  + vpOY - th - 10;
-                left = rect.left + vpOX + rect.width/2 - TW/2;
-            }
-
-            /* ── Clamp: el tooltip SIEMPRE dentro del visual viewport ── */
-            /* horizontal */
-            var minL = vpOX + 10;
-            var maxL = vpOX + vw - TW - 10;
-            left = Math.max(minL, Math.min(left, maxL));
-
-            /* vertical: 3 intentos                                        */
-            var minT = vpOY + 10;
-            var maxT = vpOY + vh - th - 10;
-            if (top > maxT) {  /* se sale abajo → intentar arriba */
-                top = rect.top + vpOY - th - 10;
-            }
-            if (top < minT) {  /* no cabe arriba → centrar en viewport */
-                top = vpOY + Math.round((vh - th) / 2);
-            }
-            /* límite duro final */
-            top = Math.max(minT, Math.min(top, maxT));
-
-            onbTooltip.style.width = TW + 'px';
-            onbTooltip.style.top   = top  + 'px';
-            onbTooltip.style.left  = left + 'px';
-        }
-
         function mostrarOnbStep() {
             if (onbStep >= ONB_STEPS.length) { cerrarOnboarding(); return; }
-            var step = ONB_STEPS[onbStep];
-            var el   = document.querySelector(step.target);
 
+            const step = ONB_STEPS[onbStep];
+            const el = document.querySelector(step.target);
+
+            // Si el elemento no existe (ej: no hay badge 3D) y es opcional, saltar
             if (!el) {
                 if (step.optional) { onbStep++; mostrarOnbStep(); return; }
                 cerrarOnboarding(); return;
             }
 
-            /* Contenido del tooltip */
-            onbTooltip.innerHTML =
-                '<div class="onb-title">' + step.title + '</div>' +
-                '<div class="onb-desc">'  + step.desc  + '</div>' +
-                '<div class="onb-nav">' +
-                  '<button class="onb-btn onb-btn-skip" onclick="cerrarOnboarding()">Omitir</button>' +
-                  '<span class="onb-counter">' + (onbStep+1) + ' / ' + ONB_STEPS.length + '</span>' +
-                  '<button class="onb-btn onb-btn-next" onclick="siguienteOnb()">' +
-                    (onbStep === ONB_STEPS.length-1 ? 'Entendido' : 'Siguiente') +
-                  '</button>' +
-                '</div>';
+            const rect = el.getBoundingClientRect();
+            const pad = 8;
 
-            /* Scroll si el elemento está fuera de vista, luego posicionar */
-            var r = el.getBoundingClientRect();
-            var fuera = r.top < 0 || r.bottom > window.innerHeight
-                     || r.left < 0 || r.right > window.innerWidth;
-            if (fuera) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                setTimeout(function() { onbPlace(el, step); }, 500);
+            // Highlight del elemento
+            onbHighlight.style.top = (rect.top - pad) + 'px';
+            onbHighlight.style.left = (rect.left - pad) + 'px';
+            onbHighlight.style.width = (rect.width + pad * 2) + 'px';
+            onbHighlight.style.height = (rect.height + pad * 2) + 'px';
+
+            // Tooltip content
+            onbTooltip.innerHTML = `
+                <div class="onb-title">${step.title}</div>
+                <div class="onb-desc">${step.desc}</div>
+                <div class="onb-nav">
+                    <button class="onb-btn onb-btn-skip" onclick="cerrarOnboarding()">Omitir</button>
+                    <span class="onb-counter">${onbStep + 1} / ${ONB_STEPS.length}</span>
+                    <button class="onb-btn onb-btn-next" onclick="siguienteOnb()">${onbStep === ONB_STEPS.length - 1 ? 'Entendido' : 'Siguiente'}</button>
+                </div>
+            `;
+
+            // Position tooltip
+            const tw = 280;
+            let top, left;
+            if (step.pos === 'bottom') {
+                top = rect.bottom + pad + 12;
+                left = Math.max(10, rect.left + rect.width / 2 - tw / 2);
+            } else if (step.pos === 'left') {
+                top = rect.top + rect.height / 2 - 60;
+                left = Math.max(10, rect.left - tw - 16);
             } else {
-                onbPlace(el, step);
+                top = Math.max(10, rect.top - 130);
+                left = Math.max(10, rect.left + rect.width / 2 - tw / 2);
             }
+            // Keep within viewport
+            if (left + tw > window.innerWidth - 10) left = window.innerWidth - tw - 10;
+            if (top < 10) top = rect.bottom + 12;
+            // Clamp inferior: si el tooltip se sale por abajo, subirlo (fix Android)
+            const tooltipH = onbTooltip.offsetHeight || 120;
+            if (top + tooltipH > window.innerHeight - 10) {
+                top = rect.top - tooltipH - 12;
+            }
+            if (top < 10) top = Math.round((window.innerHeight - tooltipH) / 2);
+
+            onbTooltip.style.top = top + 'px';
+            onbTooltip.style.left = left + 'px';
         }
 
-                function siguienteOnb() {
+        function siguienteOnb() {
             onbStep++;
             mostrarOnbStep();
         }
