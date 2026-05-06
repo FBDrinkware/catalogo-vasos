@@ -79,38 +79,40 @@
         /* Modal legal */
         #modal-legal { transition: opacity 0.3s ease, visibility 0.3s ease; opacity: 0; visibility: hidden; }
         #modal-legal.show { opacity: 1; visibility: visible; }
-        /* Onboarding overlay */
+        /* ── Onboarding ───────────────────────────────────────── */
         #onboarding-overlay {
-            position: fixed; inset: 0; z-index: 9999;
-            background: rgba(0,0,0,0.6);
-            transition: opacity 0.3s ease;
+            position: fixed; inset: 0; z-index: 9000;
+            background: transparent;
+            pointer-events: none;           /* el overlay NO bloquea clics */
         }
-        #onboarding-overlay.hide { opacity: 0; pointer-events: none; }
+        .onb-highlight {
+            position: fixed; z-index: 9001;
+            border-radius: 10px;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.62);
+            pointer-events: none;
+            top: 50%; left: 50%;            /* inofensivo hasta posicionarse */
+            width: 0; height: 0;
+        }
         .onb-tooltip {
-            position: fixed; z-index: 10000;
-            background: white; color: #184273;
+            position: fixed; z-index: 9002;
+            background: #fff; color: #184273;
             padding: 16px 18px; border-radius: 12px;
-            max-width: 280px; font-size: 13px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            width: 280px; max-width: calc(100vw - 24px);
+            box-sizing: border-box;
+            font-size: 13px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.28);
             border: 2px solid #184273;
-            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: auto;           /* botones SIEMPRE clicables */
         }
         .onb-tooltip .onb-title { font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-        .onb-tooltip .onb-desc { font-size: 12px; color: #566876; line-height: 1.5; margin-bottom: 12px; }
-        .onb-tooltip .onb-nav { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .onb-tooltip .onb-desc  { font-size: 12px; color: #566876; line-height: 1.5; margin-bottom: 12px; }
+        .onb-tooltip .onb-nav   { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .onb-tooltip .onb-counter { font-size: 10px; color: #b1afaf; font-weight: 700; }
-        .onb-tooltip .onb-btn { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s; }
+        .onb-tooltip .onb-btn   { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer; border: none; }
         .onb-btn-skip { background: none; color: #b1afaf; }
         .onb-btn-skip:hover { color: #184273; }
         .onb-btn-next { background: #184273; color: white; }
         .onb-btn-next:hover { background: #566876; }
-        .onb-highlight {
-            position: fixed; z-index: 9999;
-            border-radius: 12px;
-            box-shadow: 0 0 0 4000px rgba(0,0,0,0.6);
-            transition: all 0.4s ease;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body class="bg-fb-cream text-fb-dark pb-24">
@@ -1237,85 +1239,100 @@
             mostrarOnbStep();
         }
 
-        function posicionarOnbTooltip(el, step) {
-            const rect = el.getBoundingClientRect();
-            const pad = 8;
-            const tw = 280;
-            const th = onbTooltip.offsetHeight || 130;
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
+        /* ── Onboarding positioning ──────────────────────────────────── */
+        function onbPlace(el, step) {
+            /* Medidas reales del viewport para position:fixed              */
+            /* En Android Chrome el layout viewport == window.inner*        */
+            /* visualViewport.offsetTop == desplazamiento por barra URL     */
+            var vp   = window.visualViewport;
+            var vw   = vp ? vp.width  : window.innerWidth;
+            var vh   = vp ? vp.height : window.innerHeight;
+            var vpOY = vp ? vp.offsetTop  : 0;   /* px que la barra URL "roba" arriba */
+            var vpOX = vp ? vp.offsetLeft : 0;
 
-            // Highlight
-            onbHighlight.style.top    = (rect.top  - pad) + 'px';
-            onbHighlight.style.left   = (rect.left - pad) + 'px';
-            onbHighlight.style.width  = (rect.width  + pad * 2) + 'px';
-            onbHighlight.style.height = (rect.height + pad * 2) + 'px';
+            var rect = el.getBoundingClientRect();
+            var pad  = 8;
+            var TW   = Math.min(280, vw - 24);
+            var th   = onbTooltip.offsetHeight || 140;
 
-            // Posición preferida según step.pos
-            let top, left;
+            /* ── Highlight ───────────────────────────────────────────── */
+            onbHighlight.style.width  = (rect.width  + pad*2) + 'px';
+            onbHighlight.style.height = (rect.height + pad*2) + 'px';
+            onbHighlight.style.top    = (rect.top  + vpOY - pad) + 'px';
+            onbHighlight.style.left   = (rect.left + vpOX - pad) + 'px';
+
+            /* ── Posición preferida ──────────────────────────────────── */
+            var top, left;
             if (step.pos === 'bottom') {
-                top  = rect.bottom + pad + 12;
-                left = rect.left + rect.width / 2 - tw / 2;
+                top  = rect.top  + vpOY + rect.height + pad + 10;
+                left = rect.left + vpOX + rect.width/2 - TW/2;
             } else if (step.pos === 'left') {
-                top  = rect.top + rect.height / 2 - th / 2;
-                left = rect.left - tw - 16;
-                // Si no hay espacio a la izquierda, poner a la derecha
-                if (left < 10) left = rect.right + 16;
+                top  = rect.top  + vpOY + rect.height/2 - th/2;
+                left = rect.left + vpOX - TW - 14;
+                if (left < vpOX + 10) left = rect.right + vpOX + 14;
             } else {
-                top  = rect.top - th - 12;
-                left = rect.left + rect.width / 2 - tw / 2;
+                top  = rect.top  + vpOY - th - 10;
+                left = rect.left + vpOX + rect.width/2 - TW/2;
             }
 
-            // Clamp horizontal
-            left = Math.max(10, Math.min(left, vw - tw - 10));
+            /* ── Clamp: el tooltip SIEMPRE dentro del visual viewport ── */
+            /* horizontal */
+            var minL = vpOX + 10;
+            var maxL = vpOX + vw - TW - 10;
+            left = Math.max(minL, Math.min(left, maxL));
 
-            // Clamp vertical: si se sale por abajo → intentar arriba; si tampoco → centrar en viewport
-            if (top + th > vh - 10) {
-                const topAlt = rect.top - th - 12;
-                top = (topAlt >= 10) ? topAlt : Math.max(10, vh / 2 - th / 2);
+            /* vertical: 3 intentos                                        */
+            var minT = vpOY + 10;
+            var maxT = vpOY + vh - th - 10;
+            if (top > maxT) {  /* se sale abajo → intentar arriba */
+                top = rect.top + vpOY - th - 10;
             }
-            if (top < 10) top = 10;
+            if (top < minT) {  /* no cabe arriba → centrar en viewport */
+                top = vpOY + Math.round((vh - th) / 2);
+            }
+            /* límite duro final */
+            top = Math.max(minT, Math.min(top, maxT));
 
-            onbTooltip.style.top  = top + 'px';
-            onbTooltip.style.left = left + 'px';
+            onbTooltip.style.width = TW + 'px';
+            onbTooltip.style.top   = top  + 'px';
+            onbTooltip.style.left  = left + 'px';
         }
 
         function mostrarOnbStep() {
             if (onbStep >= ONB_STEPS.length) { cerrarOnboarding(); return; }
+            var step = ONB_STEPS[onbStep];
+            var el   = document.querySelector(step.target);
 
-            const step = ONB_STEPS[onbStep];
-            const el = document.querySelector(step.target);
-
-            // Si el elemento no existe (ej: no hay badge 3D) y es opcional, saltar
             if (!el) {
                 if (step.optional) { onbStep++; mostrarOnbStep(); return; }
                 cerrarOnboarding(); return;
             }
 
-            // 1. Renderizar contenido del tooltip primero
-            onbTooltip.innerHTML = `
-                <div class="onb-title">${step.title}</div>
-                <div class="onb-desc">${step.desc}</div>
-                <div class="onb-nav">
-                    <button class="onb-btn onb-btn-skip" onclick="cerrarOnboarding()">Omitir</button>
-                    <span class="onb-counter">${onbStep + 1} / ${ONB_STEPS.length}</span>
-                    <button class="onb-btn onb-btn-next" onclick="siguienteOnb()">${onbStep === ONB_STEPS.length - 1 ? 'Entendido' : 'Siguiente'}</button>
-                </div>
-            `;
+            /* Contenido del tooltip */
+            onbTooltip.innerHTML =
+                '<div class="onb-title">' + step.title + '</div>' +
+                '<div class="onb-desc">'  + step.desc  + '</div>' +
+                '<div class="onb-nav">' +
+                  '<button class="onb-btn onb-btn-skip" onclick="cerrarOnboarding()">Omitir</button>' +
+                  '<span class="onb-counter">' + (onbStep+1) + ' / ' + ONB_STEPS.length + '</span>' +
+                  '<button class="onb-btn onb-btn-next" onclick="siguienteOnb()">' +
+                    (onbStep === ONB_STEPS.length-1 ? 'Entendido' : 'Siguiente') +
+                  '</button>' +
+                '</div>';
 
-            // 2. Posicionar inmediatamente con coords actuales (tooltip visible de entrada)
-            posicionarOnbTooltip(el, step);
-
-            // 3. Si el elemento está fuera del viewport, hacer scroll y reposicionar
-            const rect0 = el.getBoundingClientRect();
-            const fueraViewport = rect0.top < 0 || rect0.bottom > window.innerHeight;
-            if (fueraViewport) {
+            /* Scroll si el elemento está fuera de vista, luego posicionar */
+            var r = el.getBoundingClientRect();
+            var fuera = r.top < 0 || r.bottom > window.innerHeight
+                     || r.left < 0 || r.right > window.innerWidth;
+            if (fuera) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                setTimeout(function () { posicionarOnbTooltip(el, step); }, 450);
+                setTimeout(function() { onbPlace(el, step); }, 500);
+            } else {
+                onbPlace(el, step);
             }
         }
 
-        function siguienteOnb() {
+                function siguienteOnb() {
             onbStep++;
             mostrarOnbStep();
         }
