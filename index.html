@@ -79,6 +79,38 @@
         /* Modal legal */
         #modal-legal { transition: opacity 0.3s ease, visibility 0.3s ease; opacity: 0; visibility: hidden; }
         #modal-legal.show { opacity: 1; visibility: visible; }
+        /* Onboarding overlay */
+        #onboarding-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.6);
+            transition: opacity 0.3s ease;
+        }
+        #onboarding-overlay.hide { opacity: 0; pointer-events: none; }
+        .onb-tooltip {
+            position: fixed; z-index: 10000;
+            background: white; color: #184273;
+            padding: 16px 18px; border-radius: 12px;
+            max-width: 280px; font-size: 13px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            border: 2px solid #184273;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .onb-tooltip .onb-title { font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .onb-tooltip .onb-desc { font-size: 12px; color: #566876; line-height: 1.5; margin-bottom: 12px; }
+        .onb-tooltip .onb-nav { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .onb-tooltip .onb-counter { font-size: 10px; color: #b1afaf; font-weight: 700; }
+        .onb-tooltip .onb-btn { font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s; }
+        .onb-btn-skip { background: none; color: #b1afaf; }
+        .onb-btn-skip:hover { color: #184273; }
+        .onb-btn-next { background: #184273; color: white; }
+        .onb-btn-next:hover { background: #566876; }
+        .onb-highlight {
+            position: fixed; z-index: 9999;
+            border-radius: 12px;
+            box-shadow: 0 0 0 4000px rgba(0,0,0,0.6);
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="bg-fb-cream text-fb-dark pb-24">
@@ -113,15 +145,15 @@
         </div>
     </div>
 
-    <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-4">
-        <div class="col-span-full text-center py-20 text-fb-silver animate-pulse font-mono text-xs uppercase tracking-widest">SINCRONIZANDO INVENTARIO...</div>
-    </main>
-
     <!-- Características de los vasos -->
     <section class="max-w-4xl mx-auto px-4 py-6">
         <img src="https://i.ibb.co/DDmkVn3Y/Caracter-sticas-Vasos.png" alt="Características de nuestros vasos - Doble pared, libre de BPA, fácil de limpiar" class="w-full rounded-2xl shadow-lg border border-fb-light">
     </section>
-    
+
+    <main id="catalogo" class="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto pt-4">
+        <div class="col-span-full text-center py-20 text-fb-silver animate-pulse font-mono text-xs uppercase tracking-widest">SINCRONIZANDO INVENTARIO...</div>
+    </main>
+
     <!-- Clientes que confían en nosotros -->
     <section class="max-w-4xl mx-auto px-4 py-6">
         <h2 class="text-xl md:text-2xl font-black text-fb-dark uppercase tracking-tighter text-center mb-6">
@@ -1144,6 +1176,132 @@
         }
 
         // Bloquear fechas anteriores a hoy + 5 días en el selector
+        // ============================================
+        // ONBOARDING (TOOLTIPS GUIADOS)
+        // ============================================
+        const ONB_STEPS = [
+            {
+                target: '#contenedor-chips',
+                title: 'Filtra por tamaño',
+                desc: 'Usa estos botones para ver solo los vasos del tamaño que te interesa. Puedes seleccionar varios a la vez.',
+                pos: 'bottom'
+            },
+            {
+                target: '#buscador',
+                title: 'Busca productos',
+                desc: 'Escribe el nombre, color o capacidad del vaso que buscas. Los resultados se filtran en tiempo real.',
+                pos: 'bottom'
+            },
+            {
+                target: '.badge-ficha',
+                title: 'Ficha técnica',
+                desc: 'Toca este botón en cualquier producto para ver sus medidas, área de grabado y especificaciones. Puedes navegar entre fichas con las flechas.',
+                pos: 'left'
+            },
+            {
+                target: '.badge-3d',
+                title: 'Vista 3D',
+                desc: 'Si el producto tiene vista 3D, toca aquí para explorar el vaso en 360 grados en Sketchfab.',
+                pos: 'left',
+                optional: true
+            },
+            {
+                target: '.cart-float',
+                title: 'Tu carrito',
+                desc: 'Toca aquí para ver tu pedido, ajustar cantidades y enviar tu cotización o pedido completo por WhatsApp.',
+                pos: 'left'
+            }
+        ];
+
+        let onbStep = 0;
+        let onbOverlay = null;
+        let onbTooltip = null;
+        let onbHighlight = null;
+
+        function iniciarOnboarding() {
+            if (localStorage.getItem('fbk_onb_done')) return;
+            onbOverlay = document.createElement('div');
+            onbOverlay.id = 'onboarding-overlay';
+            onbOverlay.onclick = () => {};
+            document.body.appendChild(onbOverlay);
+
+            onbHighlight = document.createElement('div');
+            onbHighlight.className = 'onb-highlight';
+            document.body.appendChild(onbHighlight);
+
+            onbTooltip = document.createElement('div');
+            onbTooltip.className = 'onb-tooltip';
+            document.body.appendChild(onbTooltip);
+
+            onbStep = 0;
+            mostrarOnbStep();
+        }
+
+        function mostrarOnbStep() {
+            if (onbStep >= ONB_STEPS.length) { cerrarOnboarding(); return; }
+
+            const step = ONB_STEPS[onbStep];
+            const el = document.querySelector(step.target);
+
+            // Si el elemento no existe (ej: no hay badge 3D) y es opcional, saltar
+            if (!el) {
+                if (step.optional) { onbStep++; mostrarOnbStep(); return; }
+                cerrarOnboarding(); return;
+            }
+
+            const rect = el.getBoundingClientRect();
+            const pad = 8;
+
+            // Highlight del elemento
+            onbHighlight.style.top = (rect.top - pad) + 'px';
+            onbHighlight.style.left = (rect.left - pad) + 'px';
+            onbHighlight.style.width = (rect.width + pad * 2) + 'px';
+            onbHighlight.style.height = (rect.height + pad * 2) + 'px';
+
+            // Tooltip content
+            onbTooltip.innerHTML = `
+                <div class="onb-title">${step.title}</div>
+                <div class="onb-desc">${step.desc}</div>
+                <div class="onb-nav">
+                    <button class="onb-btn onb-btn-skip" onclick="cerrarOnboarding()">Omitir</button>
+                    <span class="onb-counter">${onbStep + 1} / ${ONB_STEPS.length}</span>
+                    <button class="onb-btn onb-btn-next" onclick="siguienteOnb()">${onbStep === ONB_STEPS.length - 1 ? 'Entendido' : 'Siguiente'}</button>
+                </div>
+            `;
+
+            // Position tooltip
+            const tw = 280;
+            let top, left;
+            if (step.pos === 'bottom') {
+                top = rect.bottom + pad + 12;
+                left = Math.max(10, rect.left + rect.width / 2 - tw / 2);
+            } else if (step.pos === 'left') {
+                top = rect.top + rect.height / 2 - 60;
+                left = Math.max(10, rect.left - tw - 16);
+            } else {
+                top = Math.max(10, rect.top - 130);
+                left = Math.max(10, rect.left + rect.width / 2 - tw / 2);
+            }
+            // Keep within viewport
+            if (left + tw > window.innerWidth - 10) left = window.innerWidth - tw - 10;
+            if (top < 10) top = rect.bottom + 12;
+
+            onbTooltip.style.top = top + 'px';
+            onbTooltip.style.left = left + 'px';
+        }
+
+        function siguienteOnb() {
+            onbStep++;
+            mostrarOnbStep();
+        }
+
+        function cerrarOnboarding() {
+            localStorage.setItem('fbk_onb_done', '1');
+            if (onbOverlay) onbOverlay.remove();
+            if (onbTooltip) onbTooltip.remove();
+            if (onbHighlight) onbHighlight.remove();
+        }
+
         (function setMinFecha() {
             const hoy = new Date();
             hoy.setDate(hoy.getDate() + 5);
@@ -1151,7 +1309,7 @@
             document.getElementById('form-fecha').setAttribute('min', min);
         })();
 
-        cargarProductos();
+        cargarProductos().then(() => { setTimeout(iniciarOnboarding, 800); });
         renderFAQ();
     </script>
 </body>
