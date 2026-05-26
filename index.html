@@ -284,6 +284,27 @@
                 <p class="text-[9px] text-fb-silver mt-1 leading-relaxed">*Incluye una personalización (un logo). Cambios sujetos a disponibilidad sin previo aviso. Precio estimado. La cotización final, con ofertas (si aplica), será enviada por nuestros agentes vía WhatsApp para su confirmación.</p>
             </div>
 
+            <!-- Selector de Asesor -->
+            <div id="asesor-container" class="hidden mb-4 p-4 bg-fb-cream rounded-2xl border border-fb-light">
+                <label class="block text-[10px] text-fb-mid uppercase font-black mb-2 tracking-widest">
+                    Código de Asesor
+                </label>
+                <select id="form-asesor" class="w-full bg-white border border-fb-light rounded-xl px-4 py-3 text-sm text-fb-dark focus:border-fb-dark outline-none transition-all font-bold">
+                    <option value="FBDE-0">FBDE-0 · Redes Sociales / Directo</option>
+                    <option value="FBDE-1">FBDE-1</option>
+                    <option value="FBDE-2">FBDE-2</option>
+                    <option value="FBDE-3">FBDE-3</option>
+                    <option value="FBDE-4">FBDE-4</option>
+                    <option value="FBDE-5">FBDE-5</option>
+                    <option value="FBDE-6">FBDE-6</option>
+                    <option value="FBDE-7">FBDE-7</option>
+                    <option value="FBDE-8">FBDE-8</option>
+                    <option value="FBDE-9">FBDE-9</option>
+                    <option value="FBDE-10">FBDE-10</option>
+                </select>
+                <p class="text-[9px] text-fb-silver mt-1.5 leading-relaxed">Si llegaste por recomendación de un asesor, selecciónalo aquí.</p>
+            </div>
+
             <!-- Selector de modo: Cotización rápida vs Pedido completo -->
             <div id="modo-selector" class="mb-4">
                 <p class="text-[11px] text-fb-mid text-center mb-3 font-bold">¿Cómo deseas continuar?</p>
@@ -461,6 +482,11 @@
 
             </div><!-- /form-container -->
 
+            <!-- Aviso discreto si Sheets falla -->
+            <div id="sheets-aviso" class="hidden mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+                <p class="text-[9px] text-yellow-700 font-bold text-center">⚠️ Tu mensaje se enviará por WhatsApp normalmente. Hubo un problema al registrar en el sistema interno.</p>
+            </div>
+
             <button onclick="toggleCarrito()" class="w-full text-fb-silver text-[10px] font-black uppercase tracking-widest mt-4 hover:text-fb-dark transition-colors">Seguir Navegando</button>
         </div>
     </div>
@@ -468,6 +494,9 @@
     <script>
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTCuUsbKuOYH_2NKSFUE3F83riH5dQYYhb71wuGHy-FvIE583Mu6-ERJHOTnpP-7pQ-fJpk1cMjvpGM/pub?gid=0&single=true&output=csv';
         const WHATSAPP_NUM = '5219983210480';
+        // URL del Apps Script desplegado como Web App
+        // REEMPLAZA esta URL con la tuya después de desplegar el script
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMjN1TIlHNKowFF0PaV3aR35bSonRfHIwqBxDQsBP4Pod7ZjZfUtIRD3I1GnsMOx4Skw/exec';
         let carrito = [];
         let todosLosProductos = [];
         let filtrosActivos = new Set(['todos']);
@@ -757,7 +786,7 @@
             const subCont = document.getElementById('subtotal-container');
             if (!carrito.length) {
                 lista.innerHTML = '<p class="text-center py-10 text-fb-silver text-[10px] font-bold uppercase tracking-widest">AÚN NO HAS AÑADIDO PRODUCTOS</p>';
-                subCont.classList.add('hidden'); sincronizarCatalogo(); return;
+                subCont.classList.add('hidden'); document.getElementById('asesor-container').classList.add('hidden'); sincronizarCatalogo(); return;
             }
             let subtotal = 0;
             lista.innerHTML = carrito.map((item, idx) => {
@@ -785,6 +814,7 @@
             const total = subtotal + envio;
 
             subCont.classList.remove('hidden');
+            document.getElementById('asesor-container').classList.remove('hidden');
             const fmt = (n) => `$${n.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN`;
             document.getElementById('subtotal-monto').textContent = fmt(subtotal);
             document.getElementById('envio-monto').textContent = envioGratis ? '$0.00 MXN' : 'Por cotizar';
@@ -798,7 +828,13 @@
         function setCant(idx, val) { const n = parseInt(val); if (isNaN(n) || n <= 0) carrito.splice(idx, 1); else carrito[idx].cant = n; actualizarInterfaz(); }
         function cambiarCant(idx, d) { carrito[idx].cant += d; if (carrito[idx].cant <= 0) carrito.splice(idx, 1); actualizarInterfaz(); }
         function eliminar(idx) { carrito.splice(idx, 1); actualizarInterfaz(); }
-        function toggleCarrito() { document.getElementById('modal-carrito').classList.toggle('hidden'); }
+        function toggleCarrito() {
+            document.getElementById('modal-carrito').classList.toggle('hidden');
+            // Pre-llenar asesor desde URL al abrir
+            const asesorUrl = getAsesorFromUrl();
+            const sel = document.getElementById('form-asesor');
+            if (sel) sel.value = asesorUrl;
+        }
         function togglePersonalizacion() { document.getElementById('opciones-logo').style.display = document.getElementById('check-personalizar').checked ? 'block' : 'none'; }
         function toggleFactura() { document.getElementById('aviso-factura').style.display = document.getElementById('check-factura').checked ? 'block' : 'none'; }
         function toggleOtroTipo() { document.getElementById('otro-tipo-container').style.display = document.getElementById('form-tipo-pedido').value === 'Otro' ? 'block' : 'none'; }
@@ -862,10 +898,36 @@
             return `FBK-${dd}${mm}${yyyy}-${rand}`;
         }
 
+        // Leer código de asesor desde parámetro URL (?asesor=FBDE-1)
+        function getAsesorFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('asesor') || 'FBDE-0';
+        }
+
         // Leer UTM de la URL
         function getUtmCampaign() {
             const params = new URLSearchParams(window.location.search);
             return params.get('utm_campaign') || 'directo';
+        }
+
+        // ============================================
+        // REGISTRO AUTOMÁTICO EN GOOGLE SHEETS
+        // ============================================
+        async function registrarEnSheets(payload) {
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'REEMPLAZAR_CON_TU_URL_DE_APPS_SCRIPT') return;
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                // Error silencioso — no bloquea el envío de WhatsApp
+                console.warn('Sheets registro falló:', err);
+                return false;
+            }
+            return true;
         }
 
         function enviarWhatsApp() {
@@ -906,10 +968,34 @@
                 });
                 msg += `\n- Subtotal ref.: $${fmt(sub)} MXN\n\n`;
 
+                const asesorRapido = document.getElementById('form-asesor')?.value || getAsesorFromUrl();
+
+                msg += '>> ASESOR\n';
+                msg += `* Código: ${asesorRapido}\n\n`;
+
                 msg += '>> ORIGEN\n';
                 msg += `- Campaña: ${getUtmCampaign()}\n`;
                 msg += '================================\n';
                 msg += 'Hola, me interesan estos productos. Me gustaría recibir una cotización y resolver algunas dudas. Gracias.';
+
+                // Registrar en Sheets (fire & forget)
+                const payloadRapido = {
+                    pedidoId, fecha: fechaHoy + ' - ' + hora + ' hrs',
+                    tipo: 'Cotización rápida',
+                    asesor: asesorRapido,
+                    nombre: nom, telefono: tel,
+                    origen: getUtmCampaign(),
+                    productos: carrito.map(i => ({
+                        sku: i.sku, descripcion: i.nombre,
+                        cantidad: i.cant, precioUnit: i.precio
+                    }))
+                };
+                registrarEnSheets(payloadRapido).then(ok => {
+                    if (!ok) {
+                        const aviso = document.getElementById('sheets-aviso');
+                        if (aviso) { aviso.classList.remove('hidden'); setTimeout(() => aviso.classList.add('hidden'), 5000); }
+                    }
+                });
 
                 window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
                 setTimeout(() => { location.reload(); }, 500);
@@ -1002,10 +1088,34 @@
 
             msg += `>> FECHA QUE LO NECESITA: ${fechaReqFmt}\n\n`;
 
+            const asesorCompleto = document.getElementById('form-asesor')?.value || getAsesorFromUrl();
+
+            msg += '>> ASESOR\n';
+            msg += `* Código: ${asesorCompleto}\n\n`;
+
             msg += '>> ORIGEN\n';
             msg += `- Campaña: ${getUtmCampaign()}\n`;
             msg += '================================\n';
             msg += 'Pedido generado desde el catálogo FB Drinkware.';
+
+            // Registrar en Sheets (fire & forget)
+            const payloadCompleto = {
+                pedidoId, fecha: fechaHoy + ' - ' + hora + ' hrs',
+                tipo: 'Pedido completo',
+                asesor: asesorCompleto,
+                nombre: nom, telefono: tel,
+                origen: getUtmCampaign(),
+                productos: carrito.map(i => ({
+                    sku: i.sku, descripcion: i.nombre,
+                    cantidad: i.cant, precioUnit: i.precio
+                }))
+            };
+            registrarEnSheets(payloadCompleto).then(ok => {
+                if (!ok) {
+                    const aviso = document.getElementById('sheets-aviso');
+                    if (aviso) { aviso.classList.remove('hidden'); setTimeout(() => aviso.classList.add('hidden'), 5000); }
+                }
+            });
 
             window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
             setTimeout(() => { location.reload(); }, 500);
