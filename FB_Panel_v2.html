@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FB Drinkware · Panel v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{fb:{dark:'#184273',mid:'#566876',silver:'#b1afaf',light:'#bcbbba',cream:'#f1f0f0'}}}}}</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+*{box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f1f0f0;margin:0}
+.screen{display:none}.screen.active{display:block}
+.tab-btn{padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;border-bottom:2.5px solid transparent;color:#566876;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+.tab-btn.active{color:#184273;border-bottom-color:#184273}
+.campo label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#566876;margin-bottom:4px}
+.campo input,.campo select,.campo textarea{width:100%;border:1px solid #bcbbba;border-radius:10px;padding:9px 12px;font-size:13px;color:#184273;background:#fff;outline:none;transition:border .15s;font-family:'Inter',sans-serif}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:#184273}
+.campo textarea{resize:vertical;min-height:60px}
+.prefilled{background:#f1f0f0!important;color:#566876!important;pointer-events:none}
+.card{background:#fff;border-radius:18px;padding:18px 20px;margin-bottom:14px;border:1px solid #e5e7eb}
+.seccion{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#566876;padding-bottom:8px;border-bottom:1px solid #bcbbba;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.btn-primary{background:#184273;color:#fff;border:none;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:all .15s}
+.btn-primary:hover{background:#566876}
+.btn-outline{background:transparent;color:#184273;border:1.5px solid #184273;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-outline:hover{background:#EBF2FA}
+.btn-danger{background:#dc2626;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-action{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .15s}
+.btn-gmail{background:#184273;color:#fff}.btn-gmail:hover{background:#566876}
+.btn-wa{background:#16a34a;color:#fff}.btn-wa:hover{background:#15803d}
+.btn-trello{background:#0052cc;color:#fff}
+.btn-clip{background:#ea580c;color:#fff}
+.btn-copy{background:#566876;color:#fff}
+.step-row{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-radius:14px;border:1px solid #bcbbba;background:#fff;margin-bottom:8px;position:relative;transition:all .15s}
+.step-done{background:#f0fdf4;border-color:#86efac}
+.step-active{border-color:#184273;border-width:2px}
+.step-locked{opacity:.4;pointer-events:none}
+.step-warn{background:#fffbeb;border-color:#fcd34d}
+.step-num{width:26px;height:26px;border-radius:50%;background:#f1f0f0;color:#566876;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-done .step-num{background:#dcfce7;color:#16a34a}
+.step-active .step-num{background:#184273;color:#fff}
+.step-title{font-size:13px;font-weight:700;color:#184273}
+.step-sub{font-size:11px;color:#566876;margin-top:2px}
+.badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;display:inline-block}
+.badge-cotizacion{background:#fef3c7;color:#92400e}
+.badge-venta{background:#dcfce7;color:#166534}
+.badge-produccion{background:#e0f2fe;color:#0369a1}
+.badge-entregado{background:#f0fdf4;color:#15803d}
+.badge-cancelado{background:#fee2e2;color:#dc2626}
+.badge-proceso{background:#ede9fe;color:#7c3aed}
+.badge-asesor{background:#EBF2FA;color:#184273}
+.tag-nuevo{background:#fef3c7;color:#92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
+.tag-exist{background:#dcfce7;color:#166534;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
+.alert-warn{background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:12px}
+.alert-error{background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:10px 14px;font-size:12px;color:#dc2626;margin-bottom:12px}
+.alert-ok{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;font-size:12px;color:#166534;margin-bottom:12px}
+.chip{background:#f1f0f0;border-radius:10px;padding:7px 12px}
+.chip .lbl{font-size:9px;color:#566876;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chip .val{font-size:12px;font-weight:700;color:#184273;margin-top:2px}
+.chip .val.pendiente{color:#ea580c}
+.upload-zone{border:1.5px dashed #bcbbba;border-radius:10px;padding:14px;text-align:center;font-size:12px;color:#566876;cursor:pointer;transition:all .15s}
+.upload-zone:hover{border-color:#184273;color:#184273}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;display:none;max-width:90vw;text-align:center}
+.tooltip-wrap{position:relative;display:inline-block}
+.tooltip-box{display:none;position:absolute;bottom:125%;left:50%;transform:translateX(-50%);background:#184273;color:#fff;font-size:11px;padding:6px 10px;border-radius:8px;white-space:nowrap;z-index:100;max-width:220px;white-space:normal;text-align:center;line-height:1.4}
+.tooltip-wrap:hover .tooltip-box,.tooltip-box.show{display:block}
+.pendiente-card{border-left:3px solid #184273;background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .15s;border:1px solid #e5e7eb;border-left-width:3px}
+.pendiente-card:hover{background:#EBF2FA}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
+.pill-estado{font-size:10px;font-weight:700;padding:2px 10px;border-radius:10px;cursor:pointer;border:1.5px solid transparent;transition:all .15s}
+.pill-estado.sel{border-color:#184273;background:#184273;color:#fff}
+.pill-estado:not(.sel){background:#f1f0f0;color:#566876}
+</style>
+</head>
+<body class="pb-28">
+<div class="toast" id="toast"></div>
+
+<!-- ══ LOGIN GOOGLE ══ -->
+<div id="pantalla-login" class="min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-lg border border-fb-light">
+    <div class="text-center mb-6">
+      <div class="text-3xl mb-2">🥤</div>
+      <h1 class="text-xl font-black text-fb-dark">FB Drinkware</h1>
+      <p class="text-xs text-fb-silver mt-1">Panel de Ventas v2</p>
+    </div>
+    <div id="login-estado" class="text-center">
+      <p class="text-sm text-fb-mid mb-4">Ingresa tu correo de Google autorizado</p>
+      <div class="campo mb-3"><label>Correo institucional</label>
+        <input type="email" id="inp-correo-login" placeholder="tu.correo@francobolli.com.mx"
+          onkeydown="if(event.key==='Enter')iniciarSesion()">
+      </div>
+      <button onclick="iniciarSesion()" class="btn-primary">Ingresar →</button>
+      <p id="login-error" class="text-xs text-red-500 mt-3 hidden"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP PRINCIPAL ══ -->
+<div id="app-principal" style="display:none">
+
+<!-- HEADER -->
+<header class="bg-white border-b border-fb-light sticky top-0 z-50 shadow-sm">
+  <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <span class="text-lg">🥤</span>
+      <span class="text-fb-dark font-black text-sm hidden sm:block">FB Drinkware · Panel v2</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="badge badge-asesor text-xs" id="hdr-asesor">—</span>
+      <span class="text-xs text-fb-silver" id="hdr-jerarquia"></span>
+      <button onclick="cerrarSesion()" class="text-xs text-fb-silver hover:text-red-500 ml-1">Salir</button>
+    </div>
+  </div>
+  <div class="max-w-2xl mx-auto px-4 flex border-t border-fb-light overflow-x-auto">
+    <button class="tab-btn active" onclick="showTab('tab-pendientes',this)">📋 Pendientes</button>
+    <button class="tab-btn" onclick="showTab('tab-busqueda',this)">🔍 Buscar</button>
+    <button class="tab-btn" onclick="showTab('tab-captura',this)" id="tab-btn-cap">📝 Captura</button>
+    <button class="tab-btn" onclick="showTab('tab-seguimiento',this)" id="tab-btn-seg">⚡ Seguimiento</button>
+    <button class="tab-btn" id="tab-btn-admin" onclick="showTab('tab-admin',this)" style="display:none">👑 Admin</button>
+  </div>
+</header>
+
+<div class="max-w-2xl mx-auto px-4 pt-5">
+
+<!-- ══ TAB PENDIENTES ══ -->
+<div class="screen active" id="tab-pendientes">
+  <div class="card">
+    <div class="seccion">⚡ Por atender — llegaron del catálogo sin procesar</div>
+    <div id="lista-por-atender"><p class="text-xs text-fb-silver text-center py-4">Cargando...</p></div>
+  </div>
+  <div class="card">
+    <div class="seccion">🔄 En proceso — con pasos pendientes</div>
+    <div id="lista-en-proceso"><p class="text-xs text-fb-silver text-center py-4">Cargando...</p></div>
+  </div>
+  <div class="text-center mt-2">
+    <button onclick="cargarPendientes()" class="btn-outline text-xs">↺ Actualizar lista</button>
+  </div>
+</div>
+
+<!-- ══ TAB BUSQUEDA ══ -->
+<div class="screen" id="tab-busqueda">
+  <div class="card">
+    <div class="seccion">🔍 Buscar pedido</div>
+    <div class="flex gap-2 mb-3">
+      <input type="text" id="inp-fbk" placeholder="FBK-28052026-7365 o FBK-MANUAL-..."
+        class="flex-1 border border-fb-light rounded-xl px-4 py-3 text-sm outline-none focus:border-fb-dark text-fb-dark"
+        onkeydown="if(event.key==='Enter')buscarPedido()">
+      <button onclick="buscarPedido()" class="bg-fb-dark text-white px-5 py-3 rounded-xl font-bold text-sm">Buscar</button>
+    </div>
+    <div id="res-busqueda"></div>
+  </div>
+  <div class="card" id="card-nuevo-manual" style="display:none">
+    <div class="seccion">✏️ Crear pedido manual</div>
+    <p class="text-xs text-fb-silver mb-3">Para pedidos tomados fuera del catálogo o para el mismo cliente.</p>
+    <button onclick="abrirModalManual()" class="btn-outline text-sm">+ Nuevo pedido manual</button>
+  </div>
+</div>
+
+<!-- ══ TAB CAPTURA ══ -->
+<div class="screen" id="tab-captura">
+  <div id="captura-vacio" class="card text-center py-8 text-fb-silver text-sm">
+    Busca un pedido FBK para iniciar la captura de datos del cliente.
+  </div>
+  <div id="bloque-captura" style="display:none">
+
+    <!-- Alerta estado -->
+    <div id="alerta-estado" class="alert-warn" style="display:none">
+      ⚠️ <strong>Este pedido aún está en "Cotización".</strong> Asegúrate de haber confirmado la venta con el cliente antes de continuar.
+      <div class="mt-2 flex gap-2 flex-wrap">
+        <button onclick="confirmarVenta()" class="bg-yellow-600 text-white text-xs font-bold px-4 py-2 rounded-lg">✅ Confirmar como Venta</button>
+        <button onclick="document.getElementById('alerta-estado').style.display='none'" class="bg-white border border-yellow-400 text-yellow-700 text-xs font-bold px-4 py-2 rounded-lg">Continuar de todas formas</button>
+      </div>
+    </div>
+
+    <!-- Alerta duplicado cliente -->
+    <div id="alerta-dup" class="alert-warn" style="display:none">
+      ⚠️ <strong>Posible cliente existente.</strong>
+      <div id="lista-dup" class="mt-2 space-y-1"></div>
+      <div class="flex gap-2 mt-2 flex-wrap">
+        <button onclick="ignorarDup()" class="bg-white border border-yellow-400 text-yellow-700 text-xs font-bold px-3 py-1.5 rounded-lg">Es cliente nuevo</button>
+      </div>
+    </div>
+
+    <!-- Resumen pedido -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="seccion mb-0">📦 Pedido</div>
+        <div class="flex items-center gap-2">
+          <span id="badge-tipo-cap" class="badge badge-cotizacion"></span>
+          <span id="badge-cliente-cap" class="tag-nuevo">Cliente nuevo</span>
+          <button onclick="irEdicion()" id="btn-editar-cap" class="btn-outline text-xs" style="display:none">✏️ Editar</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mb-3" id="chips-pedido"></div>
+      <div id="tabla-prods-cap" class="text-xs rounded-xl overflow-hidden border border-fb-light"></div>
+    </div>
+
+    <!-- SECCIÓN: Datos del cliente -->
+    <div class="card">
+      <div class="seccion">🏢 Datos del cliente</div>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="campo"><label>Razón social *</label><input type="text" id="f-razon" placeholder="FB Empresa S.A. de C.V."></div>
+        <div class="campo"><label>Nombre comercial *</label><input type="text" id="f-comercial" placeholder="FB Empresa"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="campo"><label>RFC</label><input type="text" id="f-rfc" placeholder="FBEM260101ABC" style="text-transform:uppercase"></div>
+        <div class="campo"><label>Nombre del contacto *</label><input type="text" id="f-contacto" placeholder="Juan Pérez"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="campo"><label>Teléfono *</label><input type="tel" id="f-telefono" placeholder="9983210480"></div>
+        <div class="campo"><label>Correo electrónico</label><input type="email" id="f-correo" placeholder="cliente@empresa.com"></div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN: Dirección Fiscal -->
+    <div class="card">
+      <div class="seccion">🧾 Dirección y datos fiscales</div>
+      <div class="campo mb-3"><label>Domicilio fiscal</label><input type="text" id="f-dom-fiscal" placeholder="Calle, Núm., Colonia"></div>
+      <div class="grid grid-cols-3 gap-3 mb-3">
+        <div class="campo"><label>Ciudad</label><input type="text" id="f-ciudad-fiscal" placeholder="Cancún"></div>
+        <div class="campo"><label>Estado</label><input type="text" id="f-estado-fiscal" placeholder="Q. Roo"></div>
+        <div class="campo"><label>C.P.</label><input type="text" id="f-cp-fiscal" placeholder="77500"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="campo"><label>Régimen fiscal</label><input type="text" id="f-regimen" placeholder="601 - General de Ley"></div>
+        <div class="campo"><label>Uso del CFDI</label><input type="text" id="f-cfdi" placeholder="G03 - Gastos en general"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-2">
+        <div class="campo"><label>Método de pago SAT</label>
+          <select id="f-metodo-sat"><option value="">Selecciona...</option>
+            <option value="PUE">PUE — Una sola exhibición</option>
+            <option value="PPD">PPD — Parcialidades</option>
+          </select></div>
+        <div class="campo"><label>Forma de pago</label>
+          <select id="f-forma-pago"><option value="">Selecciona...</option>
+            <option value="Transferencia bancaria">Transferencia bancaria</option>
+            <option value="Depósito bancario">Depósito bancario</option>
+            <option value="Tarjeta TDC/TDD (CLIP)">Tarjeta TDC/TDD (CLIP)</option>
+          </select></div>
+      </div>
+      <div class="campo">
+        <label>CSF (PDF) — se guardará en Drive
+          <span class="text-red-500 font-normal normal-case text-xs ml-1">⚠️ Verifica que los datos coincidan con la CSF</span>
+        </label>
+        <div class="upload-zone" onclick="document.getElementById('inp-csf').click()">
+          📄 Subir Constancia de Situación Fiscal (PDF no escáner)
+          <div id="csf-preview" class="mt-1 text-fb-dark font-bold text-xs"></div>
+        </div>
+        <input type="file" id="inp-csf" accept=".pdf" style="display:none" onchange="previewCSF(this)">
+        <button onclick="extraerCSF()" id="btn-extraer-csf" class="btn-outline text-xs mt-2" style="display:none">
+          🔍 Extraer datos automáticamente de la CSF
+        </button>
+      </div>
+    </div>
+
+    <!-- SECCIÓN: Dirección de Envío -->
+    <div class="card">
+      <div class="seccion">🚚 Dirección de envío y entrega</div>
+      <div class="campo mb-3">
+        <label>Dirección de envío
+          <span class="text-fb-silver font-normal normal-case text-xs ml-1">(opcional — puede completarse después)</span>
+        </label>
+        <input type="text" id="f-dir-envio" placeholder="Calle, Núm., Colonia — dejar vacío si está pendiente">
+      </div>
+      <div class="grid grid-cols-3 gap-3 mb-3">
+        <div class="campo"><label>Ciudad</label><input type="text" id="f-ciudad-envio"></div>
+        <div class="campo"><label>Estado</label><input type="text" id="f-estado-envio"></div>
+        <div class="campo"><label>C.P.</label><input type="text" id="f-cp-envio"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="campo"><label>Tipo de entrega *</label>
+          <select id="f-entrega"><option value="">Selecciona...</option>
+            <option value="Envío a domicilio">Envío a domicilio</option>
+            <option value="Pick Up en instalaciones">Pick Up en instalaciones</option>
+            <option value="Logística propia FB">Logística propia FB</option>
+          </select></div>
+        <div class="campo"><label>Fecha límite del cliente</label>
+          <input type="date" id="f-fecha-limite"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="campo"><label>¿Lleva grabado?</label>
+          <select id="f-grabado"><option value="No">No</option><option value="Sí">Sí</option></select></div>
+        <div class="campo"><label>¿Nombres individuales?</label>
+          <select id="f-nombres"><option value="No">No</option><option value="Sí">Sí</option></select></div>
+      </div>
+      <div class="campo">
+        <label>Comentarios internos</label>
+        <textarea id="f-comentarios" placeholder="Notas del asesor, acuerdos especiales, detalles del evento..."></textarea>
+      </div>
+    </div>
+
+    <!-- SECCIÓN: Asesor -->
+    <div class="card">
+      <div class="seccion">👤 Asesor responsable</div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="campo"><label>Código</label><input type="text" id="f-asesor-cod" class="prefilled" readonly></div>
+        <div class="campo"><label>Nombre</label><input type="text" id="f-asesor-nom" class="prefilled" readonly></div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mb-6">
+      <button class="btn-primary" onclick="guardarCaptura()">Guardar y pasar a seguimiento →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB SEGUIMIENTO ══ -->
+<div class="screen" id="tab-seguimiento">
+  <div id="seg-vacio" class="card text-center py-10 text-fb-silver text-sm">
+    Selecciona un pedido para ver su seguimiento.
+  </div>
+  <div id="seg-contenido" style="display:none">
+
+    <!-- Header pedido -->
+    <div class="card">
+      <div class="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <div class="font-mono text-xs text-fb-silver" id="seg-id"></div>
+          <div class="text-lg font-black text-fb-dark mt-1" id="seg-nombre"></div>
+          <div class="text-xs text-fb-mid mt-1" id="seg-meta"></div>
+        </div>
+        <div class="flex flex-col items-end gap-2">
+          <span id="seg-estado-badge" class="badge"></span>
+          <span id="seg-asesor-badge" class="badge badge-asesor text-xs"></span>
+          <div class="flex gap-2">
+            <button onclick="abrirEdicion()" class="btn-outline text-xs">✏️ Editar datos</button>
+            <button onclick="abrirModificarProductos()" id="btn-mod-prods" class="btn-outline text-xs">📦 Productos</button>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4" id="seg-chips"></div>
+
+      <!-- Pedidos vinculados -->
+      <div id="seg-vinculados" style="display:none" class="mt-3 pt-3 border-t border-fb-light">
+        <div class="text-xs font-bold text-fb-mid mb-2">🔗 Pedidos relacionados</div>
+        <div id="lista-vinculados" class="space-y-1"></div>
+        <button onclick="abrirModalVincular()" class="text-xs text-fb-dark underline mt-2">+ Vincular pedido</button>
+      </div>
+    </div>
+
+    <!-- OV EPICOR -->
+    <div class="card">
+      <div class="seccion">🔢 OV EPICOR</div>
+      <div class="flex gap-2">
+        <input type="text" id="inp-ov" placeholder="Ej: OV-2026-00123"
+          class="flex-1 border border-fb-light rounded-xl px-4 py-3 text-sm outline-none focus:border-fb-dark text-fb-dark">
+        <button onclick="guardarOV()" class="bg-fb-dark text-white px-5 py-3 rounded-xl font-bold text-sm">Guardar</button>
+      </div>
+      <div id="ov-ok" class="text-xs text-green-600 font-bold mt-2" style="display:none"></div>
+    </div>
+
+    <!-- Pasos del flujo -->
+    <div class="card">
+      <div class="seccion">✅ Flujo de acciones</div>
+      <div id="pasos-contenedor"></div>
+    </div>
+
+    <!-- Botón cancelar -->
+    <div class="card">
+      <button onclick="abrirModalCancelar()" class="btn-danger w-full">❌ Cancelar pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB ADMIN ══ -->
+<div class="screen" id="tab-admin">
+  <div class="card">
+    <div class="seccion">👑 Vista Administrador</div>
+    <p class="text-xs text-fb-silver mb-4">Acceso completo a todos los pedidos y métricas del equipo.</p>
+    <a href="https://docs.google.com/spreadsheets/d/15gIhiK1jpMcXM8uVCpq6nWZqVNcUO3O--e8acrOIe58" target="_blank"
+       class="btn-outline text-sm inline-block text-center w-full">📊 Abrir Sheets completo</a>
+  </div>
+</div>
+
+</div><!-- /max-w -->
+</div><!-- /app-principal -->
+
+<!-- ══ MODAL CANCELAR ══ -->
+<div class="modal-overlay" id="modal-cancelar" style="display:none">
+  <div class="modal-box">
+    <h3 class="font-black text-fb-dark text-base mb-3">❌ Cancelar pedido</h3>
+    <div class="campo mb-4"><label>Motivo de cancelación (obligatorio)</label>
+      <textarea id="inp-motivo-cancel" placeholder="Describe el motivo..." style="min-height:80px"></textarea>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="confirmarCancelacion()" class="btn-danger flex-1">Cancelar pedido</button>
+      <button onclick="cerrarModal('modal-cancelar')" class="btn-outline flex-1">Volver</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL MODIFICAR PRODUCTOS ══ -->
+<div class="modal-overlay" id="modal-prods" style="display:none">
+  <div class="modal-box">
+    <h3 class="font-black text-fb-dark text-base mb-1">📦 Modificar productos</h3>
+    <p class="text-xs text-fb-silver mb-3">Cambio de SKU o cantidad disponible hasta que se marque "Producción iniciada".</p>
+    <div id="editor-prods"></div>
+    <button onclick="agregarLineaEditor()" class="btn-outline text-xs w-full mt-3">+ Agregar SKU</button>
+    <div class="flex gap-3 mt-4">
+      <button onclick="guardarModificaciones()" class="btn-primary flex-1" style="width:auto">Guardar cambios</button>
+      <button onclick="cerrarModal('modal-prods')" class="btn-outline flex-1">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL PEDIDO MANUAL ══ -->
+<div class="modal-overlay" id="modal-manual" style="display:none">
+  <div class="modal-box">
+    <h3 class="font-black text-fb-dark text-base mb-3">✏️ Nuevo pedido manual</h3>
+    <div class="campo mb-3"><label>Nombre del contacto *</label><input type="text" id="mm-contacto"></div>
+    <div class="campo mb-3"><label>Empresa / Nombre comercial</label><input type="text" id="mm-empresa"></div>
+    <div class="campo mb-3"><label>Teléfono *</label><input type="tel" id="mm-telefono"></div>
+    <div class="campo mb-3"><label>Correo</label><input type="email" id="mm-correo"></div>
+    <div class="campo mb-3"><label>Comentarios</label><textarea id="mm-comentarios" style="min-height:50px"></textarea></div>
+    <div class="seccion mt-2">Productos</div>
+    <div id="mm-prods-lista"></div>
+    <button onclick="agregarProdManual()" class="btn-outline text-xs w-full mt-2 mb-4">+ Agregar producto</button>
+    <div class="flex gap-3">
+      <button onclick="crearPedidoManual()" class="btn-primary flex-1" style="width:auto">Crear pedido</button>
+      <button onclick="cerrarModal('modal-manual')" class="btn-outline flex-1">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL VINCULAR PEDIDO ══ -->
+<div class="modal-overlay" id="modal-vincular" style="display:none">
+  <div class="modal-box">
+    <h3 class="font-black text-fb-dark text-base mb-3">🔗 Vincular pedido</h3>
+    <p class="text-xs text-fb-silver mb-3">Ingresa el FBK del pedido relacionado (nuevo o existente del mismo cliente).</p>
+    <div class="campo mb-4"><label>FBK a vincular</label>
+      <input type="text" id="inp-fbk-vincular" placeholder="FBK-... o FBK-MANUAL-...">
+    </div>
+    <div class="flex gap-3">
+      <button onclick="confirmarVinculo()" class="btn-primary flex-1" style="width:auto">Vincular</button>
+      <button onclick="cerrarModal('modal-vincular')" class="btn-outline flex-1">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════
+// CONFIG — REEMPLAZAR DESPUÉS DEL SETUP
+// ════════════════════════════════
+const SCRIPT_URL  = 'REEMPLAZAR_CON_URL_APPS_SCRIPT_PANEL_V2';
+const TRELLO_URL  = 'https://trello.com/b/REEMPLAZAR';
+const CLIP_URL    = 'https://dashboard.clip.mx/';
+let CORREOS = { alta:'', fac:'', prod:'' };
+let DATOS_BANCO = 'Banco: BBVA\nCuenta: COMPLETAR\nCLABE: COMPLETAR\nBeneficiario: FB Drinkware S.A. de C.V.';
+let WHATSAPP_NUM = '5219983210480';
+let CATALOGO_PRODS = [];
+
+// ════════════════════════════════
+// ESTADO GLOBAL
+// ════════════════════════════════
+let S = {
+  asesor: null,       // { codigo, nombre, correo, jerarquia }
+  pedido: null,       // pedido activo
+  pasos:  {},         // estado de pasos
+  csfFile: null,
+  produccionIniciada: false,
+};
+
+// ════════════════════════════════
+// INIT
+// ════════════════════════════════
+window.onload = async () => {
+  const saved = localStorage.getItem('fb_asesor_v2');
+  if (saved) {
+    S.asesor = JSON.parse(saved);
+    mostrarApp();
+    await cargarConfig();
+    await cargarPendientes();
+  }
+};
+
+// ════════════════════════════════
+// AUTENTICACIÓN
+// ════════════════════════════════
+async function iniciarSesion() {
+  const correo = document.getElementById('inp-correo-login').value.trim();
+  if (!correo) return;
+  const res = await apiGet('autenticar', { correo });
+  if (!res.ok) {
+    const el = document.getElementById('login-error');
+    el.textContent = 'Correo no autorizado. Contacta al administrador.';
+    el.classList.remove('hidden');
+    return;
+  }
+  S.asesor = res.asesor;
+  localStorage.setItem('fb_asesor_v2', JSON.stringify(S.asesor));
+  mostrarApp();
+  await cargarConfig();
+  await cargarPendientes();
+}
+
+function mostrarApp() {
+  document.getElementById('pantalla-login').style.display = 'none';
+  document.getElementById('app-principal').style.display = 'block';
+  document.getElementById('hdr-asesor').textContent = S.asesor.codigo + ' · ' + S.asesor.nombre.split(' ')[0];
+  document.getElementById('hdr-jerarquia').textContent = S.asesor.jerarquia;
+  if (S.asesor.jerarquia === 'Admin') {
+    document.getElementById('tab-btn-admin').style.display = 'block';
+    document.getElementById('card-nuevo-manual').style.display = 'block';
+  }
+  if (['Admin','Editor'].includes(S.asesor.jerarquia)) {
+    document.getElementById('card-nuevo-manual').style.display = 'block';
+  }
+  document.getElementById('f-asesor-cod').value = S.asesor.codigo;
+  document.getElementById('f-asesor-nom').value = S.asesor.nombre;
+}
+
+function cerrarSesion() {
+  localStorage.removeItem('fb_asesor_v2');
+  location.reload();
+}
+
+// ════════════════════════════════
+// CARGAR CONFIG
+// ════════════════════════════════
+async function cargarConfig() {
+  const res = await apiGet('getConfig');
+  if (!res.ok) return;
+  const c = res.config;
+  if (c.CORREOS_ALTA) CORREOS.alta = c.CORREOS_ALTA;
+  if (c.CORREOS_FAC)  CORREOS.fac  = c.CORREOS_FAC;
+  if (c.CORREOS_PROD) CORREOS.prod  = c.CORREOS_PROD;
+  if (c.DATOS_BANCO)  DATOS_BANCO   = c.DATOS_BANCO;
+  if (c.WHATSAPP_NUM) WHATSAPP_NUM  = c.WHATSAPP_NUM;
+  const prods = await apiGet('getProductos');
+  if (prods.ok) CATALOGO_PRODS = prods.productos;
+}
+
+// ════════════════════════════════
+// PENDIENTES
+// ════════════════════════════════
+async function cargarPendientes() {
+  const res = await apiGet('getPendientes', { correo: S.asesor.correo });
+  if (!res.ok) return;
+  renderLista(res.porAtender, 'lista-por-atender', true);
+  renderLista(res.enProceso,  'lista-en-proceso',  false);
+}
+
+function renderLista(lista, contenedorId, esPorAtender) {
+  const div = document.getElementById(contenedorId);
+  if (!lista.length) { div.innerHTML = '<p class="text-xs text-fb-silver text-center py-3">Sin pedidos en esta sección</p>'; return; }
+  div.innerHTML = lista.map(p => {
+    const badgeCls = badgeEstado(p.estado);
+    const pendientes = calcPendientes(p);
+    const tooltip = pendientes.length ? pendientes.join(' · ') : 'Todo al día';
+    return `
+    <div class="pendiente-card" onclick="cargarPedidoDesdeListado('${p.id}')">
+      <div class="flex items-start justify-between gap-2 flex-wrap">
+        <div>
+          <div class="font-mono text-[10px] text-fb-silver">${p.id}</div>
+          <div class="font-bold text-fb-dark text-sm mt-0.5">${p.empresa||p.contacto}</div>
+          <div class="text-xs text-fb-mid">${p.contacto} · ${p.asesorCodigo}</div>
+        </div>
+        <div class="flex flex-col items-end gap-1">
+          <span class="badge ${badgeCls}">${p.estado}</span>
+          ${pendientes.length ? `
+          <div class="tooltip-wrap">
+            <span class="text-orange-500 text-[10px] font-bold">⚠️ ${pendientes.length} pendiente(s)</span>
+            <div class="tooltip-box">${tooltip}</div>
+          </div>` : '<span class="text-green-600 text-[10px] font-bold">✅ Al día</span>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function calcPendientes(p) {
+  const pend = [];
+  if (!p.ovEpicor) pend.push('Falta OV EPICOR');
+  if (!p.dirEnvio || p.dirEnvio === 'PENDIENTE') pend.push('Falta dirección de envío');
+  if (!p.urlCSF) pend.push('Falta CSF');
+  if (p.estado === 'Cotización') pend.push('Cambiar estado a Venta');
+  return pend;
+}
+
+function badgeEstado(e) {
+  const m = { 'Cotización':'badge-cotizacion','Venta':'badge-venta',
+    'En producción':'badge-produccion','Entregado':'badge-entregado',
+    'Cancelado':'badge-cancelado','Alta de cliente':'badge-proceso',
+    'Gestión de pago':'badge-proceso','En camino':'badge-proceso' };
+  return m[e] || 'badge-proceso';
+}
+
+async function cargarPedidoDesdeListado(fbk) {
+  const res = await apiGet('getPedido', { fbk });
+  if (!res.ok) { showToast('Error al cargar pedido', 'error'); return; }
+  S.pedido = res.pedido;
+  S.pasos  = {};
+  S.produccionIniciada = res.pedido.produccionIniciada === 'Sí';
+  renderSeguimiento();
+  showTab('tab-seguimiento', document.querySelectorAll('.tab-btn')[3]);
+}
+
+// ════════════════════════════════
+// BUSCAR PEDIDO
+// ════════════════════════════════
+async function buscarPedido() {
+  const fbk = document.getElementById('inp-fbk').value.trim().toUpperCase();
+  if (!fbk) return;
+  const div = document.getElementById('res-busqueda');
+  div.innerHTML = '<p class="text-xs text-fb-silver">Buscando...</p>';
+  const res = await apiGet('getPedido', { fbk });
+  if (!res.ok) {
+    div.innerHTML = `<div class="alert-error">Pedido no encontrado. Verifica el código FBK.</div>`;
+    return;
+  }
+  S.pedido = res.pedido;
+  S.pasos  = {};
+  S.produccionIniciada = res.pedido.produccionIniciada === 'Sí';
+  div.innerHTML = `<div class="alert-ok">✅ Pedido encontrado: <strong>${res.pedido.nombreContacto || res.pedido.empresa}</strong>
+    <br><button onclick="irCaptura()" class="btn-outline text-xs mt-2">Ir a captura de datos →</button>
+    <button onclick="renderSeguimiento();showTab('tab-seguimiento',document.querySelectorAll('.tab-btn')[3])" class="btn-outline text-xs mt-2 ml-2">Ver seguimiento →</button>
+  </div>`;
+}
+
+// ════════════════════════════════
+// CAPTURA
+// ════════════════════════════════
+function irCaptura() {
+  if (!S.pedido) return;
+  document.getElementById('captura-vacio').style.display = 'none';
+  document.getElementById('bloque-captura').style.display = 'block';
+  const p = S.pedido;
+
+  // Alerta de estado
+  if (p.estado === 'Cotización') {
+    document.getElementById('alerta-estado').style.display = 'block';
+  }
+
+  // Badge tipo
+  document.getElementById('badge-tipo-cap').textContent = p.tipo;
+  document.getElementById('badge-tipo-cap').className = 'badge ' + badgeEstado(p.estado);
+
+  // Chips resumen
+  const chips = [['ID',p.id],['Contacto',p.nombreContacto],['Teléfono',p.telefono],['Asesor',p.asesorCodigo]];
+  document.getElementById('chips-pedido').innerHTML = chips.map(([l,v]) =>
+    `<div class="chip"><div class="lbl">${l}</div><div class="val">${v||'—'}</div></div>`).join('');
+
+  // Tabla de productos
+  const prods = p.productos || [];
+  document.getElementById('tabla-prods-cap').innerHTML =
+    `<div class="bg-fb-dark text-white px-3 py-2 text-[10px] font-bold grid grid-cols-4 uppercase">
+      <span>SKU</span><span class="col-span-2">Descripción</span><span class="text-right">Cant · $</span>
+    </div>` +
+    prods.map((pr,i) => `
+      <div class="grid grid-cols-4 px-3 py-2 text-xs ${i%2===0?'':'bg-fb-cream'}">
+        <span class="font-mono text-fb-mid">${pr.sku}</span>
+        <span class="col-span-2">${pr.descripcion}</span>
+        <span class="text-right font-bold">${pr.cantActual} · $${Number(pr.precioUnit).toFixed(2)}</span>
+      </div>`).join('') +
+    `<div class="bg-fb-dark text-white px-3 py-2 text-xs font-bold text-right">
+      Total: $${Number(p.subtotal).toLocaleString('es-MX',{minimumFractionDigits:2})} MXN
+    </div>`;
+
+  // Pre-llenar con datos del catálogo (Pedido Completo)
+  setVal('f-rfc',       p.rfcPedido);
+  setVal('f-contacto',  p.nombreContacto);
+  setVal('f-telefono',  p.telefono);
+  setVal('f-correo',    p.correoCliente);
+  setVal('f-comercial', p.empresa);
+  setVal('f-ciudad-envio', p.ciudadPedido);
+  setVal('f-cp-envio',     p.cpPedido);
+  if (p.formaPagoPedido) setVal('f-forma-pago', p.formaPagoPedido);
+  if (p.fechaLimite)    setVal('f-fecha-limite', p.fechaLimite);
+  if (p.grabado)        setVal('f-grabado', p.grabado);
+  if (p.nombresPorVaso) setVal('f-nombres', p.nombresPorVaso);
+
+  // Pre-llenar con datos ya guardados del panel
+  if (p.razonSocial) {
+    setVal('f-razon', p.razonSocial);
+    setVal('f-dom-fiscal', p.domFiscal);
+    setVal('f-ciudad-fiscal', p.ciudadFiscal);
+    setVal('f-estado-fiscal', p.estadoFiscal);
+    setVal('f-cp-fiscal', p.cpFiscal);
+    setVal('f-regimen', p.regimenFiscal);
+    setVal('f-cfdi', p.usoCFDI);
+    setVal('f-metodo-sat', p.metodoPagoSAT);
+    setVal('f-dir-envio', p.dirEnvio === 'PENDIENTE' ? '' : p.dirEnvio);
+    setVal('f-ciudad-envio', p.ciudadEnvio || p.ciudadPedido);
+    setVal('f-estado-envio', p.estadoEnvio);
+    setVal('f-cp-envio', p.cpEnvio || p.cpPedido);
+    setVal('f-entrega', p.tipoEntrega);
+    setVal('f-comentarios', p.comentarios);
+    document.getElementById('badge-cliente-cap').className = 'tag-exist';
+    document.getElementById('badge-cliente-cap').textContent = 'Datos cargados';
+    document.getElementById('btn-editar-cap').style.display = 'block';
+  }
+
+  // Buscar duplicados
+  if (p.telefono) buscarDuplicados(p.telefono);
+
+  showTab('tab-captura', document.querySelectorAll('.tab-btn')[2]);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el && val) el.value = val;
+}
+
+async function buscarDuplicados(tel) {
+  const res = await apiGet('getCliente', { q: tel });
+  if (!res.ok || !res.clientes.length) return;
+  const alerta = document.getElementById('alerta-dup');
+  const lista  = document.getElementById('lista-dup');
+  alerta.style.display = 'block';
+  lista.innerHTML = res.clientes.map(c =>
+    `<div class="bg-white rounded-lg p-2 text-xs border border-yellow-200 flex justify-between items-center">
+      <span><strong>${c['Razón Social']||c['Nombre Comercial']}</strong> · RFC: ${c.RFC||'—'} · Tel: ${c.Teléfono||'—'}</span>
+      <button onclick="precargarCliente(${JSON.stringify(c).replace(/"/g,'&quot;')})"
+        class="text-yellow-700 underline font-bold ml-2 whitespace-nowrap">Usar este</button>
+    </div>`).join('');
+}
+
+function precargarCliente(c) {
+  setVal('f-razon',        c['Razón Social']);
+  setVal('f-comercial',    c['Nombre Comercial']);
+  setVal('f-rfc',          c['RFC']);
+  setVal('f-correo',       c['Correo']);
+  setVal('f-dom-fiscal',   c['Domicilio Fiscal']);
+  setVal('f-ciudad-fiscal',c['Ciudad Fiscal']);
+  setVal('f-estado-fiscal',c['Estado Fiscal']);
+  setVal('f-cp-fiscal',    c['CP Fiscal']);
+  setVal('f-regimen',      c['Régimen Fiscal']);
+  setVal('f-cfdi',         c['Uso CFDI']);
+  setVal('f-metodo-sat',   c['Método Pago SAT']);
+  setVal('f-forma-pago',   c['Forma de Pago']);
+  setVal('f-dir-envio',    c['Dirección Envío']);
+  setVal('f-ciudad-envio', c['Ciudad Envío']);
+  setVal('f-estado-envio', c['Estado Envío']);
+  setVal('f-cp-envio',     c['CP Envío']);
+  document.getElementById('badge-cliente-cap').className = 'tag-exist';
+  document.getElementById('badge-cliente-cap').textContent = 'Cliente existente';
+  document.getElementById('alerta-dup').style.display = 'none';
+  showToast('Datos pre-llenados ✅');
+}
+
+function ignorarDup() { document.getElementById('alerta-dup').style.display='none'; }
+
+function previewCSF(input) {
+  if (!input.files[0]) return;
+  S.csfFile = input.files[0];
+  document.getElementById('csf-preview').textContent = '✅ ' + input.files[0].name;
+  document.getElementById('btn-extraer-csf').style.display = 'block';
+}
+
+async function extraerCSF() {
+  if (!S.csfFile) return;
+  showToast('Extrayendo datos de la CSF...');
+  // OCR básico: leer texto del PDF via FileReader
+  const b64 = await fileToBase64(S.csfFile);
+  // Intentar extracción via Apps Script (el backend usa DriveApp para leer texto del PDF)
+  showToast('⚠️ Verifica que los datos extraídos sean correctos antes de continuar.', 'warn');
+}
+
+async function confirmarVenta() {
+  if (!S.pedido) return;
+  await apiPost({ action:'cambiarEstado', fbk:S.pedido.id, estado:'Venta', quien:S.asesor.nombre });
+  S.pedido.estado = 'Venta';
+  document.getElementById('alerta-estado').style.display = 'none';
+  showToast('Estado cambiado a Venta ✅');
+}
+
+async function guardarCaptura() {
+  const req = ['f-razon','f-comercial','f-contacto','f-telefono','f-entrega'];
+  for (const id of req) {
+    if (!document.getElementById(id).value.trim())
+      return showToast('Completa los campos obligatorios (*)', 'error');
+  }
+  const datos = recogerDatos();
+
+  if (S.csfFile) {
+    showToast('Subiendo CSF a Drive...');
+    const b64 = await fileToBase64(S.csfFile);
+    const res = await apiPost({ action:'subirCSF', base64:b64,
+      filename:S.csfFile.name,
+      nombreCliente: datos.razonSocial || datos.nombreComercial,
+      fbk: S.pedido.id, quien: S.asesor.nombre });
+    if (res.ok) datos.urlCSF = res.url;
+  }
+
+  await apiPost({ action:'guardarDatosCliente', fbk:S.pedido.id, datos, quien:S.asesor.nombre });
+  await apiPost({ action:'guardarCliente', ...datos, fbkOrigen:S.pedido.id, creadoPor:S.asesor.nombre });
+
+  Object.assign(S.pedido, datos);
+  guardarSession();
+  showToast('Datos guardados ✅');
+  setTimeout(() => {
+    renderSeguimiento();
+    showTab('tab-seguimiento', document.querySelectorAll('.tab-btn')[3]);
+  }, 700);
+}
+
+function recogerDatos() {
+  return {
+    razonSocial:    v('f-razon'), nombreComercial: v('f-comercial'),
+    rfc:            v('f-rfc').toUpperCase(), nombreContacto: v('f-contacto'),
+    telefono:       v('f-telefono'), correo: v('f-correo'),
+    domFiscal:      v('f-dom-fiscal'), ciudadFiscal: v('f-ciudad-fiscal'),
+    estadoFiscal:   v('f-estado-fiscal'), cpFiscal: v('f-cp-fiscal'),
+    regimenFiscal:  v('f-regimen'), usoCFDI: v('f-cfdi'),
+    metodoPagoSAT:  v('f-metodo-sat'), formaPago: v('f-forma-pago'),
+    dirEnvio:       v('f-dir-envio') || 'PENDIENTE',
+    ciudadEnvio:    v('f-ciudad-envio'), estadoEnvio: v('f-estado-envio'),
+    cpEnvio:        v('f-cp-envio'), tipoEntrega: v('f-entrega'),
+    fechaLimite:    v('f-fecha-limite'), grabado: v('f-grabado'),
+    nombresIndividuales: v('f-nombres'), comentarios: v('f-comentarios'),
+    asesorNombre:   S.asesor.nombre, asesorCodigo: S.asesor.codigo,
+  };
+}
+
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+function abrirEdicion() {
+  irCaptura();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function irEdicion() { abrirEdicion(); }
+
+// ════════════════════════════════
+// SEGUIMIENTO
+// ════════════════════════════════
+function renderSeguimiento() {
+  const p = S.pedido; if (!p) return;
+  document.getElementById('seg-vacio').style.display = 'none';
+  document.getElementById('seg-contenido').style.display = 'block';
+
+  document.getElementById('seg-id').textContent = p.id;
+  document.getElementById('seg-nombre').textContent = p.razonSocial || p.nombreComercial || p.nombreContacto || p.empresa || '—';
+  document.getElementById('seg-meta').textContent = (p.tipoEntrega||'') + ' · ' + (p.formaPago||'') + (p.fechaLimite ? ' · Límite: '+p.fechaLimite : '');
+  document.getElementById('seg-estado-badge').textContent = p.estado;
+  document.getElementById('seg-estado-badge').className = 'badge ' + badgeEstado(p.estado);
+  document.getElementById('seg-asesor-badge').textContent = (p.asesorCodigo||S.asesor.codigo) + ' · ' + (p.asesorNombre||S.asesor.nombre).split(' ')[0];
+
+  if (p.ovEpicor) {
+    document.getElementById('inp-ov').value = p.ovEpicor;
+    document.getElementById('ov-ok').style.display = 'block';
+    document.getElementById('ov-ok').textContent = '✅ OV: ' + p.ovEpicor;
+  }
+
+  // Chips
+  const pendDir = !p.dirEnvio || p.dirEnvio === 'PENDIENTE';
+  const chips = [
+    ['Contacto', p.nombreContacto||p.empresa],
+    ['Teléfono', p.telefono],
+    ['Entrega',  p.tipoEntrega||'—'],
+    ['Dirección envío', pendDir ? 'PENDIENTE' : p.dirEnvio, pendDir],
+    ['Forma de pago', p.formaPago||'—'],
+    ['Fecha límite', p.fechaLimite||'—'],
+  ];
+  document.getElementById('seg-chips').innerHTML = chips.map(([l,val,warn]) =>
+    `<div class="chip"><div class="lbl">${l}</div>
+     <div class="val ${warn?'pendiente':''}">${val||'—'}${warn?` <span class="tooltip-wrap">ℹ️<span class="tooltip-box">Dirección de envío pendiente de confirmar con el cliente</span></span>`:''}</div>
+    </div>`).join('');
+
+  // Pedidos vinculados
+  if (p.pedidoVinculado) {
+    document.getElementById('seg-vinculados').style.display = 'block';
+    document.getElementById('lista-vinculados').innerHTML =
+      p.pedidoVinculado.split(',').map(id =>
+        `<span class="font-mono text-xs text-fb-dark bg-fb-cream px-2 py-1 rounded-lg cursor-pointer hover:bg-fb-light"
+          onclick="document.getElementById('inp-fbk').value='${id.trim()}';buscarPedido();showTab('tab-seguimiento',document.querySelectorAll('.tab-btn')[3])">
+          🔗 ${id.trim()}</span>`
+      ).join('');
+  }
+
+  // Permisos de modificación
+  const puedeEditar = ['Admin','Editor'].includes(S.asesor.jerarquia);
+  document.getElementById('btn-mod-prods').style.display = puedeEditar && p.estado !== 'Entregado' ? 'block' : 'none';
+
+  renderPasos();
+}
+
+function renderPasos() {
+  const p  = S.pedido;
+  const ps = S.pasos || {};
+  const esNuevo    = !(p.razonSocial);
+  const tieneOV    = !!(p.ovEpicor);
+  const deseño     = p.grabado === 'Sí' || p.nombresPorVaso === 'Sí';
+  const trelloDone = !!(ps['diseno-trello']?.ok);
+  const disenoDone = !!(ps['diseno-aprobado']?.ok);
+  const prodIniciada = S.produccionIniciada;
+
+  const PASOS = [
+    { id:'venta', num:'✓', titulo:'Estado confirmado',
+      sub: p.estado === 'Cotización' ? '⚠️ Pendiente confirmar como Venta' : 'Venta confirmada',
+      done: p.estado !== 'Cotización', icono:'💼',
+      tooltip: p.estado === 'Cotización' ? 'Cambia el estado a Venta para desbloquear los siguientes pasos' : null,
+    },
+    { id:'alta', num:'1', titulo:'Alta de cliente', icono:'📧',
+      sub: esNuevo ? 'Enviar correo de alta' : 'Cliente ya existe — no aplica',
+      done: !esNuevo || !!(ps['alta']?.ok),
+      accion: esNuevo ? () => gmailAlta() : null,
+      accionLabel: esNuevo ? 'Abrir Gmail' : '✅ No aplica',
+      tooltip: esNuevo && !ps['alta']?.ok ? 'Enviar correo de alta al equipo de administración' : null,
+    },
+    { id:'fac-anticipo', num:'2', titulo:'Factura de anticipo', icono:'🧾',
+      sub: 'Solo si el cliente lo solicitó expresamente',
+      done: !!(ps['fac-anticipo']?.ok),
+      accion: () => gmailFactura(),
+      accionLabel: 'Abrir Gmail',
+      tooltip: !ps['fac-anticipo']?.ok ? 'Recuerda: primero intenta convencer al cliente de esperar la factura de producto' : null,
+    },
+    { id:'pago', num:'3', titulo:'Gestionar pago', icono: p.formaPago?.includes('TDC') ? '💳' : '🏦',
+      sub: p.formaPago?.includes('TDC') ? 'Generar link CLIP' : 'Compartir datos de transferencia',
+      done: !!(ps['pago']?.ok),
+      accion: () => gestionarPago(),
+      accionLabel: p.formaPago?.includes('TDC') ? 'Abrir CLIP' : 'Ver datos',
+    },
+    { id:'diseno-trello', num:'4a', titulo:'Abrir tarjeta Trello', icono:'📋',
+      sub: deseño ? 'Crear tarjeta para el diseñador' : 'No aplica — sin personalización',
+      done: !deseño || !!(ps['diseno-trello']?.ok),
+      locked: !deseño,
+      accion: deseño ? () => abrirTrello() : null,
+      accionLabel: deseño ? 'Abrir Trello' : '— No aplica',
+    },
+    { id:'diseno-aprobado', num:'4b', titulo:'Diseño aprobado por cliente', icono:'✅',
+      sub: 'Marca cuando el cliente confirme el diseño',
+      done: !deseño || !!(ps['diseno-aprobado']?.ok),
+      locked: !deseño || !trelloDone,
+      accion: deseño ? () => marcarPaso('diseno-aprobado') : null,
+      accionLabel: 'Marcar aprobado',
+      tooltip: deseño && !trelloDone ? 'Primero abre la tarjeta en Trello (paso 4a)' : null,
+    },
+    { id:'ov', num:'5', titulo:'OV en EPICOR', icono:'🔢',
+      sub: tieneOV ? 'OV: ' + p.ovEpicor : 'Ingresa la OV en el campo de arriba',
+      done: tieneOV,
+      accion: null, accionLabel: '↑ Campo OV arriba',
+      tooltip: !tieneOV ? 'Genera la OV en EPICOR e ingrésala en el campo de arriba' : null,
+    },
+    { id:'produccion', num:'6', titulo:'Solicitar producción', icono:'🏭',
+      sub: 'Correo al equipo · Adjunta PDF del diseño',
+      locked: !tieneOV || (deseño && !disenoDone),
+      done: !!(ps['produccion']?.ok),
+      accion: () => gmailProduccion(),
+      accionLabel: 'Abrir Gmail',
+      tooltip: !tieneOV ? 'Necesitas la OV de EPICOR para solicitar producción' : (deseño && !disenoDone ? 'El diseño debe estar aprobado por el cliente (paso 4b)' : null),
+      campoExtra: `
+        <div class="mt-3 space-y-2">
+          <div class="campo"><label>Link carpeta OneDrive</label>
+            <input type="text" id="inp-onedrive" placeholder="https://onedrive..." value="${p.urlOneDrive||''}"></div>
+          <div class="campo"><label>PDF de muestra del diseño</label>
+            <div class="upload-zone text-xs" onclick="document.getElementById('inp-pdf-prod').click()">
+              📎 Subir PDF · <span id="pdf-prod-nom">No seleccionado</span>
+            </div>
+            <input type="file" id="inp-pdf-prod" accept=".pdf" style="display:none"
+              onchange="document.getElementById('pdf-prod-nom').textContent=this.files[0].name">
+          </div>
+          <div class="flex items-center gap-3 mt-2">
+            <input type="checkbox" id="chk-prod-ini" ${prodIniciada?'checked':''} onchange="toggleProduccionIniciada(this)"
+              ${prodIniciada?'disabled':''}>
+            <label for="chk-prod-ini" class="text-xs font-bold text-fb-dark cursor-pointer">
+              ⚙️ Producción iniciada — después de esta marca no se permiten modificaciones de SKU
+            </label>
+          </div>
+        </div>`,
+    },
+    { id:'envio', num:'7', titulo:'Seguimiento de envío', icono:'📦',
+      sub: 'Avisa al cliente que su pedido está en camino',
+      locked: !(ps['produccion']?.ok),
+      done: !!(ps['envio']?.ok),
+      accion: () => waEnvio(), accionLabel: 'WhatsApp',
+      campoExtra: `
+        <div class="flex items-center gap-3 mt-3">
+          <input type="checkbox" id="chk-entregado" onchange="marcarEntregado(this)">
+          <label for="chk-entregado" class="text-xs font-bold text-fb-dark cursor-pointer">
+            ✅ Marcar como Entregado — registra timestamp y cierra el pedido
+          </label>
+        </div>`,
+    },
+    { id:'postventa', num:'8', titulo:'Post-venta', icono:'⭐',
+      sub: 'Mensaje de satisfacción al cliente',
+      locked: p.estado !== 'Entregado',
+      done: !!(ps['postventa']?.ok),
+      accion: () => waPostventa(), accionLabel: 'WhatsApp',
+    },
+  ];
+
+  document.getElementById('pasos-contenedor').innerHTML = PASOS.map(paso => {
+    const done   = paso.done;
+    const locked = paso.locked;
+    const cls    = done ? 'step-done' : locked ? 'step-locked' : '';
+    const numCls = done ? 'bg-green-100 text-green-600' : locked ? '' : 'bg-fb-dark text-white';
+    const warnDot = paso.tooltip && !done && !locked
+      ? `<span class="tooltip-wrap ml-1"><span class="text-orange-400 text-xs cursor-pointer">⚠️</span>
+           <span class="tooltip-box">${paso.tooltip}</span></span>` : '';
+    return `
+    <div class="step-row ${cls}" id="paso-${paso.id}">
+      <div class="step-num ${numCls}">${done ? '✓' : paso.num}</div>
+      <div class="flex-1 min-w-0">
+        <div class="step-title">${paso.icono} ${paso.titulo}${warnDot}</div>
+        <div class="step-sub">${paso.sub}</div>
+        ${paso.campoExtra || ''}
+        ${!done && !locked && paso.accion ? `<button onclick="ejecutarPaso('${paso.id}')" class="btn-action btn-gmail mt-3">${paso.accionLabel}</button>` :
+          done ? `<span class="text-green-600 text-xs font-bold mt-2 block">✅ Completado · ${ps[paso.id]?.ts||''}</span>` :
+          locked || !paso.accion ? '' :
+          `<span class="text-fb-silver text-xs mt-2 block">${paso.accionLabel||''}</span>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function ejecutarPaso(id) {
+  const acc = { alta:gmailAlta, 'fac-anticipo':gmailFactura, pago:gestionarPago,
+    'diseno-trello':abrirTrello, 'diseno-aprobado':()=>marcarPaso('diseno-aprobado'),
+    produccion:gmailProduccion, envio:waEnvio, postventa:waPostventa };
+  if (acc[id]) acc[id]();
+}
+
+function marcarPaso(id) {
+  const ts = new Date().toLocaleString('es-MX');
+  S.pasos[id] = { ok:true, ts };
+  guardarSession();
+  apiPost({ action:'marcarPaso', fbk:S.pedido.id, paso:id, valor:true, ts, quien:S.asesor.nombre });
+  renderPasos();
+  showToast('Paso registrado ✅');
+}
+
+async function toggleProduccionIniciada(el) {
+  if (!el.checked) return;
+  if (!confirm('¿Confirmar que la producción ha iniciado? Esta acción no se puede deshacer y bloqueará modificaciones de SKU.')) {
+    el.checked = false; return;
+  }
+  S.produccionIniciada = true;
+  await apiPost({ action:'marcarProduccionIniciada', fbk:S.pedido.id, valor:true, quien:S.asesor.nombre });
+  showToast('Producción iniciada registrada ✅');
+  renderPasos();
+}
+
+async function marcarEntregado(el) {
+  if (!el.checked) return;
+  if (!confirm('¿Marcar este pedido como Entregado? Se registrará el timestamp y la duración total.')) {
+    el.checked = false; return;
+  }
+  await apiPost({ action:'cambiarEstado', fbk:S.pedido.id, estado:'Entregado', quien:S.asesor.nombre });
+  S.pedido.estado = 'Entregado';
+  marcarPaso('envio');
+  guardarSession();
+  showToast('¡Pedido marcado como Entregado! 🎉');
+  renderSeguimiento();
+}
+
+// ════════════════════════════════
+// ACCIONES DE PASOS — CORREOS Y WA
+// ════════════════════════════════
+function enc(s) { return encodeURIComponent(s); }
+
+function gmailAlta() {
+  const p = S.pedido; const hoy = new Date().toLocaleDateString('es-MX');
+  const asunto = `ALTA CLIENTE — ${p.razonSocial}`;
+  const body = `Buenos días,\n\nSolicito el alta del siguiente cliente. Adjunto CSF.\n\n${'─'.repeat(30)}\nDATOS DEL CLIENTE\n${'─'.repeat(30)}\nFecha de solicitud:   ${hoy}\nRazón social:         ${p.razonSocial}\nNombre comercial:     ${p.nombreComercial||'—'}\nRFC:                  ${p.rfc||'—'}\nDomicilio:            ${p.domFiscal||'—'}\nEstado y ciudad:      ${p.estadoFiscal||'—'}, ${p.ciudadFiscal||'—'}\nC.P.:                 ${p.cpFiscal||'—'}\nRégimen fiscal:       ${p.regimenFiscal||'—'}\nUso del CFDI:         ${p.usoCFDI||'—'}\nCorreo electrónico:   ${p.correo||'—'}\nMétodo de pago SAT:   ${p.metodoPagoSAT||'—'}\nForma de pago:        ${p.formaPago||'—'}\n\n${'─'.repeat(30)}\nDAMOS POR SENTADOS\n${'─'.repeat(30)}\nContado: Sí · Área/Canal/Grupo: E-Commerce\nAlmacén: No · Etiquetar OV: No\nLista de precios: En Línea · Vía embarque: E-Commerce\n\n${'─'.repeat(30)}\nAsesor: ${S.asesor.nombre} (${S.asesor.codigo})\n\nSaludos,`;
+  window.open(`https://mail.google.com/mail/?view=cm&to=${enc(CORREOS.alta)}&su=${enc(asunto)}&body=${enc(body)}`,'_blank');
+  marcarPaso('alta');
+}
+
+function gmailFactura() {
+  const p = S.pedido; const ov = p.ovEpicor || '(pendiente OV)';
+  const asunto = `FACTURA DE ANTICIPO OV — ${ov}`;
+  const body = `Buenos días,\n\nSolicito factura de anticipo. Adjunto CSF.\n\nPedido: ${p.id}\nOV: ${ov}\nCliente: ${p.razonSocial}\nRFC: ${p.rfc||'—'}\nRégimen: ${p.regimenFiscal||'—'}\nUso CFDI: ${p.usoCFDI||'—'}\nCorreo factura: ${p.correo||'—'}\nMonto sin IVA: (indicar monto)\nMétodo SAT: ${p.metodoPagoSAT||'—'}\nForma pago: ${p.formaPago||'—'}\n\nAsesor: ${S.asesor.nombre} (${S.asesor.codigo})\n\nSaludos,`;
+  window.open(`https://mail.google.com/mail/?view=cm&to=${enc(CORREOS.fac)}&su=${enc(asunto)}&body=${enc(body)}`,'_blank');
+  marcarPaso('fac-anticipo');
+}
+
+function gestionarPago() {
+  if (S.pedido.formaPago?.includes('TDC')) {
+    window.open(CLIP_URL,'_blank');
+    marcarPaso('pago');
+  } else {
+    if (!document.getElementById('modal-transf')) {
+      const m = document.createElement('div');
+      m.id = 'modal-transf';
+      m.className = 'modal-overlay';
+      m.innerHTML = `<div class="modal-box">
+        <h3 class="font-black text-fb-dark mb-4">🏦 Datos de transferencia</h3>
+        <pre class="bg-fb-cream rounded-xl p-4 text-xs font-mono whitespace-pre-wrap">${DATOS_BANCO}</pre>
+        <button onclick="navigator.clipboard.writeText(\`${DATOS_BANCO}\`);showToast('Copiado ✅')"
+          class="btn-action btn-copy w-full justify-center mt-3">📋 Copiar datos</button>
+        <button onclick="document.getElementById('modal-transf').remove();marcarPaso('pago')"
+          class="btn-action btn-gmail w-full justify-center mt-2">✅ Marcar enviado al cliente</button>
+      </div>`;
+      document.body.appendChild(m);
+    }
+    document.getElementById('modal-transf').style.display = 'flex';
+  }
+}
+
+function abrirTrello() {
+  const nombre = enc(S.pedido.razonSocial || S.pedido.nombreContacto);
+  window.open(`${TRELLO_URL}?name=${nombre}`,'_blank');
+  marcarPaso('diseno-trello');
+}
+
+function gmailProduccion() {
+  const p   = S.pedido;
+  const ov  = p.ovEpicor || '(pendiente)';
+  const od  = document.getElementById('inp-onedrive')?.value?.trim() || '(pendiente)';
+  const dir = (!p.dirEnvio || p.dirEnvio === 'PENDIENTE')
+    ? 'PENDIENTE — se enviará en respuesta a este correo'
+    : `${p.dirEnvio}, ${p.ciudadEnvio||''}, ${p.estadoEnvio||''} C.P. ${p.cpEnvio||''}`;
+  const prods = (p.productos||[]).map(pr =>
+    `${(pr.sku||'').padEnd(10)}|  ${String(pr.cantActual||pr.cantOriginal||0).padStart(3)}  | ${pr.descripcion||''}`).join('\n');
+  const asunto = `PRODUCCIÓN OV ${ov} — ${p.nombreComercial||p.razonSocial}`;
+  const body = `Buenos días equipo,\n\nSolicito ingreso a cola de producción.\n\n${'─'.repeat(30)}\nIDENTIFICACIÓN\n${'─'.repeat(30)}\nOV EPICOR: ${ov}\nFolio: ${p.id}\nFecha: ${new Date().toLocaleDateString('es-MX')}\nFecha límite: ${p.fechaLimite||'—'}\n\n${'─'.repeat(30)}\nCLIENTE\n${'─'.repeat(30)}\n${p.nombreComercial||p.razonSocial}\nContacto: ${p.nombreContacto}\nTel: ${p.telefono} · Correo: ${p.correo||'—'}\n\n${'─'.repeat(30)}\nPRODUCTOS\n${'─'.repeat(30)}\nSKU       | CANT  | DESCRIPCIÓN\n----------+-------+------------------\n${prods}\n\n${'─'.repeat(30)}\nDISEÑO\n${'─'.repeat(30)}\nGrabado: ${p.grabado||'No'} · Nombres individuales: ${p.nombresPorVaso||'No'}\nDiseño aprobado: ${S.pasos['diseno-aprobado']?.ok?'Sí':'Pendiente'}\nCarpeta OneDrive: ${od}\n(PDF de muestra adjunto)\n\n${'─'.repeat(30)}\nENTREGA\n${'─'.repeat(30)}\nTipo: ${p.tipoEntrega||'—'}\n${p.tipoEntrega==='Pick Up en instalaciones'?'El cliente pasará a recoger en instalaciones.':'Dirección: '+dir}\nComentarios: ${p.comentarios||'—'}\n\nAsesor: ${S.asesor.nombre} (${S.asesor.codigo})\n\nSaludos,`;
+  window.open(`https://mail.google.com/mail/?view=cm&to=${enc(CORREOS.prod)}&su=${enc(asunto)}&body=${enc(body)}`,'_blank');
+  if (od !== '(pendiente)') apiPost({ action:'guardarOneDrive', fbk:p.id, valor:od, quien:S.asesor.nombre });
+  apiPost({ action:'cambiarEstado', fbk:p.id, estado:'En producción', quien:S.asesor.nombre });
+  S.pedido.estado = 'En producción';
+  marcarPaso('produccion');
+}
+
+function waEnvio() {
+  const p = S.pedido;
+  const tel = '52' + (p.telefono||'').replace(/\D/g,'');
+  const msg = `Hola ${p.nombreContacto||p.nombreComercial} 📦\n\n¡Tu pedido (${p.id}) está en camino! En breve recibirás la guía de rastreo.\n\nCualquier duda, estamos a tus órdenes. ¡Gracias por confiar en nosotros! 🎉`;
+  window.open(`https://wa.me/${tel}?text=${enc(msg)}`,'_blank');
+  apiPost({ action:'cambiarEstado', fbk:p.id, estado:'En camino', quien:S.asesor.nombre });
+  S.pedido.estado = 'En camino';
+  marcarPaso('envio');
+}
+
+function waPostventa() {
+  const p = S.pedido;
+  const tel = '52' + (p.telefono||'').replace(/\D/g,'');
+  const msg = `Hola ${p.nombreContacto||p.nombreComercial} 😊\n\n¡Esperamos que hayas recibido tu pedido en perfectas condiciones!\n\nNos encantaría saber tu opinión:\n• ¿Quedaste satisfecho con los productos?\n• ¿El proceso fue fácil?\n\nSi tienes fotos del resultado, ¡nos encantaría verlas! Etiquétanos en Instagram @fbdrinkware o en Facebook como FB DRINKWARE. 📸\n\n¡Gracias por ser parte de la familia FB Drinkware! 🙌`;
+  window.open(`https://wa.me/${tel}?text=${enc(msg)}`,'_blank');
+  marcarPaso('postventa');
+}
+
+// ════════════════════════════════
+// OV
+// ════════════════════════════════
+async function guardarOV() {
+  const ov = document.getElementById('inp-ov').value.trim();
+  if (!ov) return showToast('Escribe el número de OV','error');
+  await apiPost({ action:'guardarOV', fbk:S.pedido.id, ov, quien:S.asesor.nombre });
+  S.pedido.ovEpicor = ov;
+  guardarSession();
+  document.getElementById('ov-ok').style.display='block';
+  document.getElementById('ov-ok').textContent = '✅ OV guardada: ' + ov;
+  renderPasos();
+  showToast('OV guardada ✅');
+}
+
+// ════════════════════════════════
+// MODIFICAR PRODUCTOS
+// ════════════════════════════════
+function abrirModificarProductos() {
+  const p = S.pedido; if (!p) return;
+  const prodIniciada = S.produccionIniciada;
+  const editor = document.getElementById('editor-prods');
+  editor.innerHTML = (p.productos||[]).map((pr,i) => `
+    <div class="bg-fb-cream rounded-xl p-3 mb-2" id="prod-edit-${i}">
+      <div class="grid grid-cols-3 gap-2 mb-2">
+        <div class="campo col-span-2"><label>SKU</label>
+          <input type="text" value="${pr.sku}" id="pe-sku-${i}" ${prodIniciada?'readonly class="prefilled"':''}></div>
+        <div class="campo"><label>Cantidad</label>
+          <input type="number" value="${pr.cantActual}" id="pe-cant-${i}" min="0"></div>
+      </div>
+      <div class="campo"><label>Descripción</label>
+        <input type="text" value="${pr.descripcion}" id="pe-desc-${i}"></div>
+      ${!prodIniciada ? `<button onclick="eliminarLineaEditor(${i})" class="text-red-500 text-xs font-bold mt-1">🗑 Eliminar línea</button>` : ''}
+    </div>`).join('');
+
+  if (prodIniciada) {
+    editor.innerHTML += '<div class="alert-warn text-xs">⚠️ Producción iniciada — solo se permiten adiciones como nuevo pedido vinculado.</div>';
+  }
+  document.getElementById('modal-prods').style.display = 'flex';
+}
+
+function agregarLineaEditor() {
+  const editor = document.getElementById('editor-prods');
+  const idx = editor.querySelectorAll('[id^=prod-edit-]').length;
+  const div = document.createElement('div');
+  div.id = `prod-edit-${idx}`;
+  div.className = 'bg-green-50 rounded-xl p-3 mb-2 border border-green-200';
+  div.innerHTML = `
+    <div class="text-xs font-bold text-green-700 mb-2">+ Nueva línea</div>
+    <div class="grid grid-cols-3 gap-2 mb-2">
+      <div class="campo col-span-2"><label>SKU</label>
+        <select id="pe-sku-${idx}" class="w-full border border-fb-light rounded-xl px-3 py-2 text-sm">
+          ${CATALOGO_PRODS.map(pr => `<option value="${pr.sku}" data-precio="${pr.precio}">${pr.sku} — ${pr.nombre} ($${pr.precio})</option>`).join('')}
+        </select></div>
+      <div class="campo"><label>Cantidad</label>
+        <input type="number" id="pe-cant-${idx}" value="1" min="1"></div>
+    </div>
+    <button onclick="this.parentElement.remove()" class="text-red-500 text-xs font-bold">🗑 Quitar</button>`;
+  editor.appendChild(div);
+}
+
+function eliminarLineaEditor(i) {
+  const el = document.getElementById(`prod-edit-${i}`);
+  if (el) el.style.opacity = '0.3';
+  el.querySelector('input,select')?.setAttribute('data-eliminar','1');
+}
+
+async function guardarModificaciones() {
+  const cambios = [];
+  const prodOrig = S.pedido.productos || [];
+  document.querySelectorAll('[id^=prod-edit-]').forEach((div,i) => {
+    const skuEl   = div.querySelector(`[id^=pe-sku-]`);
+    const cantEl  = div.querySelector(`[id^=pe-cant-]`);
+    const descEl  = div.querySelector(`[id^=pe-desc-]`);
+    if (!skuEl || !cantEl) return;
+    const cant = parseInt(cantEl.value);
+    const skuNuevo = skuEl.value;
+    const desc = descEl?.value || '';
+
+    if (div.id === `prod-edit-${i}` && div.style.opacity === '0.3') {
+      cambios.push({ tipo:'eliminar', skuOrig: prodOrig[i]?.sku });
+      return;
+    }
+    if (i >= prodOrig.length) {
+      // Nueva línea
+      const precio = skuEl.options?.[skuEl.selectedIndex]?.dataset?.precio || 0;
+      cambios.push({ tipo:'agregar', sku:skuNuevo, desc, cant, precio:Number(precio) });
+    } else if (skuNuevo !== prodOrig[i]?.sku || cant !== prodOrig[i]?.cantActual) {
+      cambios.push({ tipo:'cambiar', skuOrig:prodOrig[i]?.sku, skuNuevo, cantNueva:cant, desc });
+    }
+  });
+
+  if (!cambios.length) { cerrarModal('modal-prods'); return; }
+
+  const res = await apiPost({ action:'modificarProductos', fbk:S.pedido.id, cambios, quien:S.asesor.nombre });
+  if (res.ok) {
+    // Si hay cambios con producción ya iniciada, avisar a producción
+    if (S.produccionIniciada) gmailModificacion(cambios);
+    // Recargar pedido
+    const fresh = await apiGet('getPedido', { fbk:S.pedido.id });
+    if (fresh.ok) S.pedido = fresh.pedido;
+    cerrarModal('modal-prods');
+    renderSeguimiento();
+    showToast('Productos actualizados ✅');
+  }
+}
+
+function gmailModificacion(cambios) {
+  const p = S.pedido;
+  const asunto = `MODIFICACIÓN OV ${p.ovEpicor||'—'} — ${p.nombreComercial||p.razonSocial}`;
+  const detalle = cambios.map(c => {
+    if (c.tipo==='cambiar') return `CAMBIO: ${c.skuOrig} → ${c.skuNuevo||c.skuOrig} (cant: ${c.cantNueva})`;
+    if (c.tipo==='eliminar') return `ELIMINADO: ${c.skuOrig}`;
+    if (c.tipo==='agregar')  return `AGREGADO: ${c.sku} x${c.cant}`;
+  }).join('\n');
+  const body = `Equipo,\n\nSe realizó una modificación al pedido en producción:\n\nOV: ${p.ovEpicor}\nCliente: ${p.nombreComercial||p.razonSocial}\n\nCambios:\n${detalle}\n\nAsesor: ${S.asesor.nombre} (${S.asesor.codigo})\n\nFavor de confirmar si es posible aplicar los cambios.\n\nSaludos,`;
+  window.open(`https://mail.google.com/mail/?view=cm&to=${enc(CORREOS.prod)}&su=${enc(asunto)}&body=${enc(body)}`,'_blank');
+}
+
+// ════════════════════════════════
+// CANCELAR PEDIDO
+// ════════════════════════════════
+function abrirModalCancelar() {
+  document.getElementById('modal-cancelar').style.display = 'flex';
+}
+
+async function confirmarCancelacion() {
+  const motivo = document.getElementById('inp-motivo-cancel').value.trim();
+  if (!motivo) return showToast('El motivo es obligatorio','error');
+  await apiPost({ action:'cancelarPedido', fbk:S.pedido.id, motivo, quien:S.asesor.nombre });
+  S.pedido.estado = 'Cancelado';
+  cerrarModal('modal-cancelar');
+  waCancelacion(motivo);
+  renderSeguimiento();
+  showToast('Pedido cancelado');
+}
+
+function waCancelacion(motivo) {
+  const p = S.pedido;
+  const tel = '52' + (p.telefono||'').replace(/\D/g,'');
+  const msg = `Hola ${p.nombreContacto||p.nombreComercial},\n\nLamentamos informarte que tu pedido (${p.id}) ha sido cancelado.\n\nMotivo: ${motivo}\n\nSi tienes alguna duda o deseas hacer un nuevo pedido, con gusto te atendemos.\n\nGracias por tu comprensión. 🙏\n\n— Equipo FB Drinkware`;
+  window.open(`https://wa.me/${tel}?text=${enc(msg)}`,'_blank');
+}
+
+// ════════════════════════════════
+// PEDIDO MANUAL
+// ════════════════════════════════
+function abrirModalManual() {
+  document.getElementById('mm-prods-lista').innerHTML = '';
+  agregarProdManual();
+  document.getElementById('modal-manual').style.display = 'flex';
+}
+
+function agregarProdManual() {
+  const div = document.createElement('div');
+  div.className = 'bg-fb-cream rounded-xl p-3 mb-2';
+  div.innerHTML = `
+    <div class="grid grid-cols-3 gap-2">
+      <div class="campo col-span-2"><label>Producto</label>
+        <select class="mm-sku w-full border border-fb-light rounded-xl px-3 py-2 text-sm">
+          ${CATALOGO_PRODS.map(p=>`<option value="${p.sku}" data-precio="${p.precio}" data-desc="${p.nombre}">${p.sku} — ${p.nombre}</option>`).join('')}
+        </select></div>
+      <div class="campo"><label>Cant.</label><input type="number" class="mm-cant" value="1" min="1"></div>
+    </div>
+    <button onclick="this.parentElement.remove()" class="text-red-500 text-xs font-bold mt-1">🗑 Quitar</button>`;
+  document.getElementById('mm-prods-lista').appendChild(div);
+}
+
+async function crearPedidoManual() {
+  const contacto = document.getElementById('mm-contacto').value.trim();
+  const tel      = document.getElementById('mm-telefono').value.trim();
+  if (!contacto || !tel) return showToast('Contacto y teléfono son obligatorios','error');
+
+  const productos = [];
+  document.querySelectorAll('#mm-prods-lista > div').forEach(div => {
+    const skuEl = div.querySelector('.mm-sku');
+    const cantEl = div.querySelector('.mm-cant');
+    if (!skuEl || !cantEl) return;
+    const opt = skuEl.options[skuEl.selectedIndex];
+    productos.push({ sku:skuEl.value, desc:opt.dataset.desc, cant:parseInt(cantEl.value), precio:Number(opt.dataset.precio) });
+  });
+
+  const res = await apiPost({ action:'crearPedidoManual',
+    datos:{ nombreContacto:contacto, telefono:tel,
+      empresa:v('mm-empresa'), correo:v('mm-correo'), comentarios:v('mm-comentarios'),
+      asesorCodigo:S.asesor.codigo, asesorNombre:S.asesor.nombre },
+    productos, quien:S.asesor.nombre });
+
+  if (res.ok) {
+    cerrarModal('modal-manual');
+    showToast('Pedido manual creado: ' + res.id);
+    document.getElementById('inp-fbk').value = res.id;
+    await buscarPedido();
+  }
+}
+
+// ════════════════════════════════
+// VINCULAR PEDIDOS
+// ════════════════════════════════
+function abrirModalVincular() { document.getElementById('modal-vincular').style.display='flex'; }
+
+async function confirmarVinculo() {
+  const fbkNuevo = document.getElementById('inp-fbk-vincular').value.trim().toUpperCase();
+  if (!fbkNuevo) return showToast('Ingresa un FBK','error');
+  await apiPost({ action:'vincularPedido', fbkOrigen:S.pedido.id, fbkNuevo, quien:S.asesor.nombre });
+  S.pedido.pedidoVinculado = (S.pedido.pedidoVinculado ? S.pedido.pedidoVinculado+', ' : '') + fbkNuevo;
+  cerrarModal('modal-vincular');
+  renderSeguimiento();
+  showToast('Pedido vinculado ✅');
+}
+
+// ════════════════════════════════
+// HELPERS
+// ════════════════════════════════
+async function apiGet(action, params={}) {
+  const url = new URL(SCRIPT_URL);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k,v));
+  try { const r = await fetch(url.toString()); return await r.json(); }
+  catch(e) { return { ok:false, error:e.toString() }; }
+}
+
+async function apiPost(payload) {
+  try {
+    await fetch(SCRIPT_URL, { method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    return { ok:true };
+  } catch(e) { return { ok:false, error:e.toString() }; }
+}
+
+function fileToBase64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function guardarSession() {
+  sessionStorage.setItem('fb_session_v2', JSON.stringify({ pedido:S.pedido, pasos:S.pasos, produccionIniciada:S.produccionIniciada }));
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function cerrarModal(id) { document.getElementById(id).style.display='none'; }
+
+function showToast(msg, tipo) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = tipo==='error' ? '#dc2626' : tipo==='warn' ? '#d97706' : '#184273';
+  t.style.display='block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.style.display='none', 3500);
+}
+
+function abrirEdicion() {
+  if (!S.pedido) return;
+  S.pedido && irCaptura();
+}
+</script>
+</body>
+</html>
