@@ -980,7 +980,7 @@
 
                 // Registrar en Sheets (fire & forget)
                 const payloadRapido = {
-                    pedidoId, fecha: fechaHoy + ' - ' + hora + ' hrs',
+                    pedidoId, fecha: fechaHoy, hora: hora + ' hrs',
                     tipo: 'Cotización rápida',
                     asesor: asesorRapido,
                     nombre: nom, telefono: tel,
@@ -1100,7 +1100,7 @@
 
             // Registrar en Sheets (fire & forget)
             const payloadCompleto = {
-                pedidoId, fecha: fechaHoy + ' - ' + hora + ' hrs',
+                pedidoId, fecha: fechaHoy, hora: hora + ' hrs',
                 tipo: 'Pedido completo',
                 asesor: asesorCompleto,
                 nombre: nom, telefono: tel,
