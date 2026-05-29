@@ -1105,6 +1105,17 @@
                 asesor: asesorCompleto,
                 nombre: nom, telefono: tel,
                 origen: getUtmCampaign(),
+                empresa: empresa,                          // ← NUEVO
+                correo: correo,                            // ← NUEVO
+                ciudad: ciudad + ', ' + estado,            // ← NUEVO
+                cp: cp,                                    // ← NUEVO
+                grabado: pers ? 'Sí' : 'No',              // ← NUEVO
+                logo: logo,                                // ← NUEVO
+                nombresPorVaso: noms ? 'Sí' : 'No',       // ← NUEVO
+                rfc: rfc,                                  // ← NUEVO
+                formaPago: metodoPago,                     // ← NUEVO
+                fechaLimite: fechaReqFmt,                  // ← NUEVO
+                tipoPedido: tipoFinal,                     // ← NUEVO
                 productos: carrito.map(i => ({
                     sku: i.sku, descripcion: i.nombre,
                     cantidad: i.cant, precioUnit: i.precio
