@@ -542,9 +542,11 @@
                 const data = await res.json();
                 if (!data.ok || !data.asesor) return;
                 ASESOR_INFO  = data.asesor;
+                // WA dinamico: siempre usa el numero del asesor si existe
                 WHATSAPP_NUM = data.asesor.telefono || WA_DEFAULT;
-                MODO_ASESOR  = true;
-                // Banner de horario solo para asesores internos FB Drinkware
+                // Precios ocultos + solo cotizacion rapida: SOLO si canal es Externo
+                MODO_ASESOR  = (data.asesor.canal === 'Externo');
+                // Banner de horario: SOLO si canal es FB Drinkware y esta fuera de horario
                 BANNER_HORARIO = (data.asesor.canal === 'FB Drinkware') && !estaEnHorario();
                 aplicarModoAsesor();
             } catch(e) {
