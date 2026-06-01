@@ -69,6 +69,8 @@
         }
         .cant-input::-webkit-outer-spin-button, .cant-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .cant-input:focus { outline: 2px solid #566876; outline-offset: 1px; }
+        /* Modo asesor — ocultar precio en items del carrito */
+        .precio-asesor-hidden { display: none !important; }
         .chip-filtro {
             padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;
             text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; user-select: none; white-space: nowrap;
@@ -493,10 +495,109 @@
 
     <script>
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTCuUsbKuOYH_2NKSFUE3F83riH5dQYYhb71wuGHy-FvIE583Mu6-ERJHOTnpP-7pQ-fJpk1cMjvpGM/pub?gid=0&single=true&output=csv';
-        const WHATSAPP_NUM = '5219983210480';
-        // URL del Apps Script desplegado como Web App
-        // REEMPLAZA esta URL con la tuya después de desplegar el script
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCugCj5h8W5Gfh7nlmvwXGzeenFdoqxyzbgZCOubGSFO9rHxEHkvggoJw36EF9Wa3M/exec';
+        const WA_DEFAULT = '5219983210480';
+
+        // ============================================
+        // MODO ASESOR EXTERNO — configuración dinámica
+        // ============================================
+        let WHATSAPP_NUM   = WA_DEFAULT;   // se sobrescribe si hay asesor externo
+        let MODO_ASESOR    = false;        // true = catálogo sin precios, solo cotización rápida
+        let ASESOR_INFO    = null;         // { codigo, nombre, telefono, canal }
+        let BANNER_HORARIO = false;        // true = mostrar aviso de horario
+
+        // Horario de atención FB Drinkware (Cancún, UTC-5 todo el año)
+        // L-V 8:00-17:00 | Sáb 8:00-13:00 | Dom cerrado
+        function estaEnHorario() {
+            const ahora = new Date();
+            // Cancún no usa horario de verano — siempre UTC-5
+            const utcMs  = ahora.getTime() + ahora.getTimezoneOffset() * 60000;
+            const cancun = new Date(utcMs - 5 * 3600000);
+            const dia    = cancun.getDay(); // 0=Dom, 1=Lun ... 6=Sáb
+            const hora   = cancun.getHours() + cancun.getMinutes() / 60;
+            if (dia === 0) return false;                     // Domingo: cerrado
+            if (dia >= 1 && dia <= 5) return hora >= 8 && hora < 17; // L-V
+            if (dia === 6) return hora >= 8 && hora < 13;   // Sábado
+            return false;
+        }
+
+        function proximoDiaHabil() {
+            const ahora = new Date();
+            const utcMs  = ahora.getTime() + ahora.getTimezoneOffset() * 60000;
+            const cancun = new Date(utcMs - 5 * 3600000);
+            const dia    = cancun.getDay();
+            if (dia === 0) return 'el lunes a partir de las 8:00 a.m.';
+            if (dia === 6) return 'el lunes a partir de las 8:00 a.m.';
+            // Entre semana fuera de horario
+            const hora = cancun.getHours();
+            if (hora < 8) return 'hoy a partir de las 8:00 a.m.';
+            return 'el siguiente día hábil a las 8:00 a.m.';
+        }
+
+        async function inicializarModoAsesor() {
+            const codigoUrl = getAsesorFromUrl();
+            if (!codigoUrl || codigoUrl === 'FBDE-0') return; // modo normal
+            try {
+                const res = await fetch(`${APPS_SCRIPT_URL}?action=getAsesor&codigo=${encodeURIComponent(codigoUrl)}`);
+                const data = await res.json();
+                if (!data.ok || !data.asesor) return;
+                ASESOR_INFO  = data.asesor;
+                WHATSAPP_NUM = data.asesor.telefono || WA_DEFAULT;
+                MODO_ASESOR  = true;
+                // Banner de horario solo para asesores internos FB Drinkware
+                BANNER_HORARIO = (data.asesor.canal === 'FB Drinkware') && !estaEnHorario();
+                aplicarModoAsesor();
+            } catch(e) {
+                console.warn('getAsesor falló, usando modo normal', e);
+            }
+        }
+
+        function aplicarModoAsesor() {
+            if (!MODO_ASESOR) return;
+            // 1. Ocultar todos los precios del catálogo
+            document.querySelectorAll('.precio-producto').forEach(el => el.classList.add('hidden'));
+            // 2. Ocultar el bloque de subtotal del carrito
+            const subCont = document.getElementById('subtotal-container');
+            if (subCont) subCont.classList.add('precio-asesor-hidden');
+            // 3. Ocultar el selector de asesor (ya viene en la URL, no necesita mostrarse)
+            const ac = document.getElementById('asesor-container');
+            if (ac) ac.classList.add('hidden');
+            // 4. Bloquear acceso a modo completo — solo cotización rápida
+            const btnCompleto = document.getElementById('btn-modo-completo');
+            if (btnCompleto) btnCompleto.classList.add('hidden');
+            // 5. Mostrar banner de horario si aplica
+            if (BANNER_HORARIO) mostrarBannerHorario();
+            // 6. Cambiar texto del botón de enviar
+            const btnTexto = document.getElementById('btn-enviar-texto');
+            if (btnTexto) btnTexto.textContent = 'Enviar cotización';
+        }
+
+        function mostrarBannerHorario() {
+            const prox = proximoDiaHabil();
+            const banner = document.createElement('div');
+            banner.id = 'banner-horario';
+            banner.innerHTML = `
+                <div class="max-w-4xl mx-auto px-4 py-3">
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-start gap-3">
+                        <span class="text-xl flex-shrink-0 mt-0.5">🕐</span>
+                        <div>
+                            <p class="text-sm font-bold text-amber-800">¡Gracias por tu interés en nuestros productos!</p>
+                            <p class="text-xs text-amber-700 mt-1 leading-relaxed">
+                                En este momento estamos fuera de nuestro horario de atención
+                                <strong>(Lun–Vie 8–17h · Sáb 8–13h)</strong>.
+                                Tu cotización llegará a nuestro equipo y te responderemos
+                                <strong>${prox}</strong>. ¡Nos da mucho gusto atenderte! 😊
+                            </p>
+                        </div>
+                    </div>
+                </div>`;
+            // Insertar debajo del header/filtros
+            const filtros = document.getElementById('filtros-oz');
+            if (filtros && filtros.parentNode) {
+                filtros.parentNode.insertBefore(banner, filtros.nextSibling);
+            }
+        }
+
         let carrito = [];
         let todosLosProductos = [];
         let filtrosActivos = new Set(['todos']);
@@ -659,7 +760,7 @@
                         <h3 class="font-bold text-xs md:text-sm text-fb-dark uppercase italic mb-1 leading-tight">${p.nombre}</h3>
                         ${badgeUltimas}
                         <div class="flex items-center justify-between mt-auto pt-4 border-t border-fb-light/50 mt-4">
-                            <span class="text-lg md:text-xl font-black text-fb-dark">$${p.precio}</span>
+                            <span class="text-lg md:text-xl font-black text-fb-dark precio-producto ${MODO_ASESOR ? 'hidden' : ''}">$${p.precio}</span>
                             <div id="ctrl-${p.sku}" class="${isAgotado ? 'hidden' : ''}">
                                 ${getCatalogoControles(p.sku, safeNombre, p.precioNum)}
                             </div>
@@ -795,7 +896,7 @@
                     <div class="text-[11px] font-bold flex-1 min-w-0 mr-3">
                         <span class="text-fb-dark font-mono text-[10px]">${item.sku}</span><br>
                         <span class="uppercase text-fb-mid">${item.nombre}</span><br>
-                        <span class="text-fb-silver text-[10px]">$${item.precio.toLocaleString('es-MX', {minimumFractionDigits:2})} c/u · <strong class="text-fb-dark">$${t.toLocaleString('es-MX', {minimumFractionDigits:2})}</strong></span>
+                        <span class="text-fb-silver text-[10px]">${MODO_ASESOR ? '' : `$${item.precio.toLocaleString('es-MX', {minimumFractionDigits:2})} c/u · `}<strong class="${MODO_ASESOR ? 'hidden' : 'text-fb-dark'}">$${t.toLocaleString('es-MX', {minimumFractionDigits:2})}</strong></span>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <button onclick="cambiarCant(${idx},-1)" class="text-fb-silver hover:text-fb-dark bg-white w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black border border-fb-light">-</button>
@@ -815,6 +916,11 @@
 
             subCont.classList.remove('hidden');
             document.getElementById('asesor-container').classList.remove('hidden');
+            // En modo asesor: ocultar selector de asesor y precios del carrito
+            if (MODO_ASESOR) {
+                document.getElementById('asesor-container').classList.add('hidden');
+                subCont.classList.add('hidden');
+            }
             const fmt = (n) => `$${n.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})} MXN`;
             document.getElementById('subtotal-monto').textContent = fmt(subtotal);
             document.getElementById('envio-monto').textContent = envioGratis ? '$0.00 MXN' : 'Por cotizar';
@@ -834,6 +940,10 @@
             const asesorUrl = getAsesorFromUrl();
             const sel = document.getElementById('form-asesor');
             if (sel) sel.value = asesorUrl;
+            // En modo asesor: ir directo a cotización rápida si el carrito tiene productos
+            if (MODO_ASESOR && carrito.length && !modoActual) {
+                setTimeout(() => setModo('rapido'), 80);
+            }
         }
         function togglePersonalizacion() { document.getElementById('opciones-logo').style.display = document.getElementById('check-personalizar').checked ? 'block' : 'none'; }
         function toggleFactura() { document.getElementById('aviso-factura').style.display = document.getElementById('check-factura').checked ? 'block' : 'none'; }
@@ -845,6 +955,9 @@
         let modoActual = null; // 'rapido' o 'completo'
 
         function setModo(modo) {
+            // En modo asesor solo se permite cotización rápida
+            if (MODO_ASESOR && modo === 'completo') modo = 'rapido';
+
             modoActual = modo;
             const selector = document.getElementById('modo-selector');
             const formContainer = document.getElementById('form-container');
@@ -914,7 +1027,7 @@
         // REGISTRO AUTOMÁTICO EN GOOGLE SHEETS
         // ============================================
         async function registrarEnSheets(payload) {
-            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'REEMPLAZAR_CON_TU_URL_DE_APPS_SCRIPT') return;
+            if (!APPS_SCRIPT_URL) return;
             try {
                 await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
@@ -960,13 +1073,22 @@
                 msg += `- Teléfono: ${tel}\n\n`;
 
                 msg += `>> PRODUCTOS DE INTERÉS (${totalPiezas} piezas)\n`;
-                msg += 'SKU       | CANT | P.UNIT | PRODUCTO\n';
-                msg += '--------------------------------------\n';
-                carrito.forEach(i => {
-                    sub += i.precio * i.cant;
-                    msg += `${i.sku.padEnd(9)} | ${String(i.cant).padStart(4)} | $${String(i.precio).padStart(4)} | ${i.nombre}\n`;
-                });
-                msg += `\n- Subtotal ref.: $${fmt(sub)} MXN\n\n`;
+                if (MODO_ASESOR) {
+                    msg += 'SKU       | CANT | PRODUCTO\n';
+                    msg += '--------------------------------------\n';
+                    carrito.forEach(i => {
+                        msg += `${i.sku.padEnd(9)} | ${String(i.cant).padStart(4)} | ${i.nombre}\n`;
+                    });
+                } else {
+                    msg += 'SKU       | CANT | P.UNIT | PRODUCTO\n';
+                    msg += '--------------------------------------\n';
+                    carrito.forEach(i => {
+                        sub += i.precio * i.cant;
+                        msg += `${i.sku.padEnd(9)} | ${String(i.cant).padStart(4)} | $${String(i.precio).padStart(4)} | ${i.nombre}\n`;
+                    });
+                    msg += `\n- Subtotal ref.: $${fmt(sub)} MXN\n\n`;
+                }
+                msg += '\n';
 
                 const asesorRapido = document.getElementById('form-asesor')?.value || getAsesorFromUrl();
 
@@ -980,7 +1102,7 @@
 
                 // Registrar en Sheets (fire & forget)
                 const payloadRapido = {
-                    pedidoId, fecha: fechaHoy, hora: hora + ' hrs',
+                    pedidoId, fecha: fechaHoy + ' - ' + hora + ' hrs',
                     tipo: 'Cotización rápida',
                     asesor: asesorRapido,
                     nombre: nom, telefono: tel,
@@ -1052,23 +1174,32 @@
             msg += `- Tipo de pedido: ${tipoFinal}\n\n`;
 
             msg += `>> PRODUCTOS (${totalPiezas} piezas)\n`;
-            msg += 'SKU       | CANT | P.UNIT | PRODUCTO\n';
-            msg += '--------------------------------------\n';
-            carrito.forEach(i => {
-                sub += i.precio * i.cant;
-                msg += `${i.sku.padEnd(9)} | ${String(i.cant).padStart(4)} | $${String(i.precio).padStart(4)} | ${i.nombre}\n`;
-            });
+            if (MODO_ASESOR) {
+                msg += 'SKU       | CANT | PRODUCTO\n';
+                msg += '--------------------------------------\n';
+                carrito.forEach(i => {
+                    msg += `${i.sku.padEnd(9)} | ${String(i.cant).padStart(4)} | ${i.nombre}\n`;
+                });
+            } else {
+                msg += 'SKU       | CANT | P.UNIT | PRODUCTO\n';
+                msg += '--------------------------------------\n';
+                carrito.forEach(i => {
+                    sub += i.precio * i.cant;
+                    msg += `${i.sku.padEnd(9)} | ${String(i.cant).padStart(4)} | $${String(i.precio).padStart(4)} | ${i.nombre}\n`;
+                });
+            }
             msg += '\n';
 
-            const envioStr = envioGratis ? '$0.00 MXN' : (pickup ? '$0.00 MXN (Pick Up)' : 'Por cotizar');
-            const totalEst = sub;
-
-            msg += '>> RESUMEN\n';
-            msg += `- Subtotal:      $${fmt(sub)} MXN\n`;
-            msg += `- Envío est.:    ${envioStr}\n`;
-            msg += `- TOTAL EST.:    $${fmt(totalEst)} MXN\n`;
-            if (!envioGratis && !pickup) msg += '_El costo de envío será cotizado por nuestros asesores._\n';
-            msg += '\n';
+            if (!MODO_ASESOR) {
+                const envioStr = envioGratis ? '$0.00 MXN' : (pickup ? '$0.00 MXN (Pick Up)' : 'Por cotizar');
+                const totalEst = sub;
+                msg += '>> RESUMEN\n';
+                msg += `- Subtotal:      $${fmt(sub)} MXN\n`;
+                msg += `- Envío est.:    ${envioStr}\n`;
+                msg += `- TOTAL EST.:    $${fmt(totalEst)} MXN\n`;
+                if (!envioGratis && !pickup) msg += '_El costo de envío será cotizado por nuestros asesores._\n';
+                msg += '\n';
+            }
 
             msg += '>> PERSONALIZACIÓN\n';
             msg += `- Grabado: ${pers ? 'Sí' : 'No'}\n`;
@@ -1100,22 +1231,11 @@
 
             // Registrar en Sheets (fire & forget)
             const payloadCompleto = {
-                pedidoId, fecha: fechaHoy, hora: hora + ' hrs',
+                pedidoId, fecha: fechaHoy + ' - ' + hora + ' hrs',
                 tipo: 'Pedido completo',
                 asesor: asesorCompleto,
                 nombre: nom, telefono: tel,
                 origen: getUtmCampaign(),
-                empresa: empresa,                          // ← NUEVO
-                correo: correo,                            // ← NUEVO
-                ciudad: ciudad + ', ' + estado,            // ← NUEVO
-                cp: cp,                                    // ← NUEVO
-                grabado: pers ? 'Sí' : 'No',              // ← NUEVO
-                logo: logo,                                // ← NUEVO
-                nombresPorVaso: noms ? 'Sí' : 'No',       // ← NUEVO
-                rfc: rfc,                                  // ← NUEVO
-                formaPago: metodoPago,                     // ← NUEVO
-                fechaLimite: fechaReqFmt,                  // ← NUEVO
-                tipoPedido: tipoFinal,                     // ← NUEVO
                 productos: carrito.map(i => ({
                     sku: i.sku, descripcion: i.nombre,
                     cantidad: i.cant, precioUnit: i.precio
@@ -1471,7 +1591,10 @@
             document.getElementById('form-fecha').setAttribute('min', min);
         })();
 
-        cargarProductos().then(() => { setTimeout(iniciarOnboarding, 800); });
+        cargarProductos().then(async () => {
+            await inicializarModoAsesor();
+            setTimeout(iniciarOnboarding, 800);
+        });
         renderFAQ();
     </script>
 </body>
