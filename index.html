@@ -1593,9 +1593,10 @@
             document.getElementById('form-fecha').setAttribute('min', min);
         })();
 
-        cargarProductos().then(async () => {
-            await inicializarModoAsesor();
-            setTimeout(iniciarOnboarding, 800);
+        inicializarModoAsesor().then(() => {
+            cargarProductos().then(() => {
+                setTimeout(iniciarOnboarding, 800);
+            });
         });
         renderFAQ();
     </script>
