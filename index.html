@@ -1104,9 +1104,10 @@
 
                 // Registrar en Sheets (fire & forget)
                 const payloadRapido = {
-                    pedidoId, fecha: fechaHoy + ' - ' + hora + ' hrs',
+                    pedidoId, fecha: fechaHoy, hora:hora + ' hrs',
                     tipo: 'Cotización rápida',
                     asesor: asesorRapido,
+                    asesorNombre: ASESOR_INFO?.nombre || '',
                     nombre: nom, telefono: tel,
                     origen: getUtmCampaign(),
                     productos: carrito.map(i => ({
@@ -1233,7 +1234,7 @@
 
             // Registrar en Sheets (fire & forget)
             const payloadCompleto = {
-                pedidoId, fecha: fechaHoy + ' - ' + hora + ' hrs',
+                pedidoId, fecha: fechaHoy, hora:hora + ' hrs',
                 tipo: 'Pedido completo',
                 asesor: asesorCompleto,
                 nombre: nom, telefono: tel,
@@ -1593,10 +1594,9 @@
             document.getElementById('form-fecha').setAttribute('min', min);
         })();
 
-        inicializarModoAsesor().then(() => {
-            cargarProductos().then(() => {
-                setTimeout(iniciarOnboarding, 800);
-            });
+        cargarProductos().then(async () => {
+            await inicializarModoAsesor();
+            setTimeout(iniciarOnboarding, 800);
         });
         renderFAQ();
     </script>
