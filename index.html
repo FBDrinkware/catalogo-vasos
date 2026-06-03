@@ -536,7 +536,12 @@
 
         async function inicializarModoAsesor() {
             const codigoUrl = getAsesorFromUrl();
-            if (!codigoUrl || codigoUrl === 'FBDE-0') return; // modo normal
+            // FBDE-0 o sin código = canal FB Drinkware directo, igual evalúa horario
+            if (!codigoUrl || codigoUrl === 'FBDE-0') {
+                BANNER_HORARIO = !estaEnHorario();
+                aplicarModoAsesor();
+                return;
+            }
             try {
                 const res = await fetch(`${APPS_SCRIPT_URL}?action=getAsesor&codigo=${encodeURIComponent(codigoUrl)}`);
                 const data = await res.json();
@@ -555,6 +560,8 @@
         }
 
         function aplicarModoAsesor() {
+            // Banner de horario: aplica aunque no sea modo asesor externo
+            if (BANNER_HORARIO) mostrarBannerHorario();
             if (!MODO_ASESOR) return;
             // 1. Ocultar todos los precios del catálogo
             document.querySelectorAll('.precio-producto').forEach(el => el.classList.add('hidden'));
@@ -567,8 +574,6 @@
             // 4. Bloquear acceso a modo completo — solo cotización rápida
             const btnCompleto = document.getElementById('btn-modo-completo');
             if (btnCompleto) btnCompleto.classList.add('hidden');
-            // 5. Mostrar banner de horario si aplica
-            if (BANNER_HORARIO) mostrarBannerHorario();
             // 6. Cambiar texto del botón de enviar
             const btnTexto = document.getElementById('btn-enviar-texto');
             if (btnTexto) btnTexto.textContent = 'Enviar cotización';
@@ -593,10 +598,10 @@
                         </div>
                     </div>
                 </div>`;
-            // Insertar debajo del header/filtros
-            const filtros = document.getElementById('filtros-oz');
-            if (filtros && filtros.parentNode) {
-                filtros.parentNode.insertBefore(banner, filtros.nextSibling);
+            // Insertar al inicio del modal del carrito, antes de la lista de productos
+            const listaCarrito = document.getElementById('lista-carrito');
+            if (listaCarrito && listaCarrito.parentNode) {
+                listaCarrito.parentNode.insertBefore(banner, listaCarrito);
             }
         }
 
