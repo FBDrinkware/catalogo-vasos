@@ -917,7 +917,7 @@
             }).join('');
 
             // Lógica de envío: gratis >= 50 piezas, "por cotizar" < 50
-            const envioGratis = totalPiezas >= 50;
+            const envioGratis = totalPiezas >= 25;
             const envio = 0; // Siempre 0 en el cálculo, el asesor cotiza si < 50
             const total = subtotal + envio;
 
