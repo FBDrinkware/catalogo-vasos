@@ -946,7 +946,7 @@
             // Pre-llenar asesor desde URL al abrir
             const asesorUrl = getAsesorFromUrl();
             const sel = document.getElementById('form-asesor');
-            if (sel) sel.value = asesorUrl;
+            if (sel) { sel.value = asesorUrl; sel.disabled = true; }
             // En modo asesor: ir directo a cotización rápida si el carrito tiene productos
             if (MODO_ASESOR && carrito.length && !modoActual) {
                 setTimeout(() => setModo('rapido'), 80);
@@ -1239,20 +1239,11 @@
 
             // Registrar en Sheets (fire & forget)
             const payloadCompleto = {
-                pedidoId, fecha: fechaHoy, hora: hora + ' hrs',
+                pedidoId, fecha: fechaHoy, hora:hora + ' hrs',
                 tipo: 'Pedido completo',
                 asesor: asesorCompleto,
                 nombre: nom, telefono: tel,
                 origen: getUtmCampaign(),
-                // Campos del pedido completo que viajan al Sheets
-                grabado:            document.getElementById('check-personalizar').checked ? 'Sí' : 'No',
-                nombresPorVaso:     document.getElementById('check-nombres').checked      ? 'Sí' : 'No',
-                formaPago:          document.getElementById('form-pago').value            || '',
-                fechaLimite:        document.getElementById('form-fecha').value           || '',
-                tipoPedido:         document.getElementById('form-tipo-pedido').value === 'otro'
-                                      ? (document.getElementById('form-otro-tipo').value || '')
-                                      : (document.getElementById('form-tipo-pedido').value || ''),
-                tipoEntrega:        pickup ? 'Pick Up en instalaciones' : 'Envío a domicilio',
                 productos: carrito.map(i => ({
                     sku: i.sku, descripcion: i.nombre,
                     cantidad: i.cant, precioUnit: i.precio
