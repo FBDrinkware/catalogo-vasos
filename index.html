@@ -616,6 +616,8 @@
         let PROMOS_ACTIVAS = []; // array de promos activas
         // Mapa rápido SKU → descuento para usar al renderizar tarjetas
         let MAPA_PROMOS_SKU = {}; // { 'SKU': { tipo, valor, titulo } }
+        // Mapa SKU → precio del asesor externo (se llena al parsear el CSV)
+        let MAPA_PRECIO_ASESOR = {}; // { 'SKU': precioNum } — solo asesores externos
 
         async function cargarConfigCatalogo() {
             try {
@@ -916,7 +918,16 @@
                 const res = await fetch(SHEET_URL);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.text();
-                const filas = data.split(/\r?\n/).slice(1);
+                const todasFilas = data.split(/\r?\n/);
+                // Leer encabezados para detectar columna PRECIO_FBDE-X
+                const headers = todasFilas[0] ? todasFilas[0].split(',').map(h => h.trim().replace(/^"|"$/g,'').toUpperCase()) : [];
+                // Si el asesor es externo, buscar su columna de precios
+                const codigoAsesor = (ASESOR_INFO?.codigo || '').toUpperCase();
+                const colPrecioAsesor = (MODO_ASESOR && codigoAsesor)
+                    ? headers.indexOf(`PRECIO_${codigoAsesor}`)
+                    : -1;
+                MAPA_PRECIO_ASESOR = {}; // reset
+                const filas = todasFilas.slice(1);
                 todosLosProductos = [];
                 const ozSet = new Set();
                 filas.forEach((fila, idx) => {
@@ -932,6 +943,13 @@
                         };
                         p.link3d = p.link3dRaw ? `https://skfb.ly/${p.link3dRaw}` : '';
                         p.precioNum = parseFloat(p.precio) || 0;
+                        // Si hay columna de precio para este asesor y tiene valor, guardarlo
+                        if (colPrecioAsesor >= 0 && col[colPrecioAsesor]) {
+                            const pa = parseFloat(limpiarCelda(col[colPrecioAsesor]));
+                            if (!isNaN(pa) && pa > 0) {
+                                MAPA_PRECIO_ASESOR[p.sku.toUpperCase()] = pa;
+                            }
+                        }
                         todosLosProductos.push(p);
                         if (p.capacidad) ozSet.add(p.capacidad);
                     } catch (e) { console.error(`Error fila ${idx+2}:`, e); }
@@ -1029,13 +1047,27 @@
                 const tieneFicha = getFichaUrl(p.capacidad);
                 const badgeFicha = (tieneFicha && !isAgotado) ? `<button class="badge-ficha" onclick="event.stopPropagation(); abrirFicha('${safeCapacidad}')" title="Ver ficha técnica"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>FICHA</button>` : '';
 
+                        // Precio del asesor externo (si existe para este SKU)
+                        const precioAsesorNum = MAPA_PRECIO_ASESOR[p.sku.toUpperCase()];
                         const precioPromo = (!MODO_ASESOR && !isAgotado) ? getPromoParaSKU(p.sku, p.precioNum) : null;
-                        const precioDisplay = precioPromo
-                            ? `<span class="precio-original">$${p.precio}</span><span class="text-lg md:text-xl font-black precio-promo">$${precioPromo.precioFinal.toLocaleString('es-MX',{minimumFractionDigits:0})}</span>`
-                            : `<span class="text-lg md:text-xl font-black text-fb-dark">$${p.precio}</span>`;
+                        // Precio a mostrar: asesor externo > promo > precio base
+                        let precioDisplay, precioParaCarrito;
+                        if (MODO_ASESOR && precioAsesorNum) {
+                            // Asesor externo con precio definido — mostrar SU precio
+                            precioDisplay = `<span class="text-lg md:text-xl font-black text-fb-dark">$${precioAsesorNum.toLocaleString('es-MX',{minimumFractionDigits:0})}</span>`;
+                            precioParaCarrito = precioAsesorNum;
+                        } else if (precioPromo) {
+                            precioDisplay = `<span class="precio-original">$${p.precio}</span><span class="text-lg md:text-xl font-black precio-promo">$${precioPromo.precioFinal.toLocaleString('es-MX',{minimumFractionDigits:0})}</span>`;
+                            precioParaCarrito = precioPromo.precioFinal;
+                        } else {
+                            precioDisplay = `<span class="text-lg md:text-xl font-black text-fb-dark">$${p.precio}</span>`;
+                            precioParaCarrito = p.precioNum;
+                        }
                         const badgePromoCard = (precioPromo && !isAgotado)
                             ? `<div class="badge-promo-card">${precioPromo.promo.tipoDescuento==='porcentaje' ? precioPromo.promo.valorDescuento+'% OFF' : '-$'+precioPromo.promo.valorDescuento}</div>`
                             : '';
+                        // Precio visible: si es asesor externo sin precio → oculto (MODO_ASESOR estándar)
+                        const mostrarPrecio = MODO_ASESOR ? !!precioAsesorNum : true;
 
                 cont.innerHTML += `
                 <div class="group relative bg-white border border-fb-light rounded-2xl overflow-hidden flex flex-col transition-all hover:border-fb-mid hover:shadow-xl ${isAgotado ? 'producto-agotado' : ''}">
@@ -1052,9 +1084,9 @@
                         <h3 class="font-bold text-xs md:text-sm text-fb-dark uppercase italic mb-1 leading-tight">${p.nombre}</h3>
                         ${badgeUltimas}
                         <div class="flex items-center justify-between mt-auto pt-4 border-t border-fb-light/50 mt-4">
-                            <span class="precio-producto ${MODO_ASESOR ? 'hidden' : ''}">${precioDisplay}</span>
+                            <span class="precio-producto ${mostrarPrecio ? '' : 'hidden'}">${precioDisplay}</span>
                             <div id="ctrl-${p.sku}" class="${isAgotado ? 'hidden' : ''}">
-                                ${getCatalogoControles(p.sku, safeNombre, precioPromo ? precioPromo.precioFinal : p.precioNum)}
+                                ${getCatalogoControles(p.sku, safeNombre, precioParaCarrito)}
                             </div>
                         </div>
                     </div>
@@ -1142,9 +1174,15 @@
             todosLosProductos.forEach(p => {
                 const el = document.getElementById(`ctrl-${p.sku}`);
                 if (!el || el.classList.contains('hidden')) return;
-                const safeNombre = p.nombre.replace(/'/g, "\\'");
-                const promoInfo  = getPromoParaSKU(p.sku, p.precioNum);
-                const precioFinal = promoInfo ? promoInfo.precioFinal : p.precioNum;
+                const safeNombre = p.nombre.replace(/'/g, "\'");
+                const precioAsesorNum = MAPA_PRECIO_ASESOR[(p.sku||'').toUpperCase()];
+                let precioFinal;
+                if (MODO_ASESOR && precioAsesorNum) {
+                    precioFinal = precioAsesorNum;
+                } else {
+                    const promoInfo = getPromoParaSKU(p.sku, p.precioNum);
+                    precioFinal = promoInfo ? promoInfo.precioFinal : p.precioNum;
+                }
                 el.innerHTML = getCatalogoControles(p.sku, safeNombre, precioFinal);
             });
         }
@@ -1402,10 +1440,16 @@
                     asesorNombre: ASESOR_INFO?.nombre || '',
                     nombre: nom, telefono: tel,
                     origen: getUtmCampaign(),
-                    productos: carrito.map(i => ({
-                        sku: i.sku, descripcion: i.nombre,
-                        cantidad: i.cant, precioUnit: i.precio
-                    }))
+                    productos: carrito.map(i => {
+                        const skuUp = (i.sku||'').toUpperCase();
+                        const pAsesor = MAPA_PRECIO_ASESOR[skuUp];
+                        return {
+                            sku: i.sku, descripcion: i.nombre,
+                            cantidad: i.cant,
+                            precioUnit: i.precioBase || i.precio, // precio FB (base)
+                            precioAsesor: pAsesor !== undefined ? pAsesor : undefined,
+                        };
+                    })
                 };
                 registrarEnSheets(payloadRapido).then(ok => {
                     if (!ok) {
@@ -1531,10 +1575,16 @@
                 asesor: asesorCompleto,
                 nombre: nom, telefono: tel,
                 origen: getUtmCampaign(),
-                productos: carrito.map(i => ({
-                    sku: i.sku, descripcion: i.nombre,
-                    cantidad: i.cant, precioUnit: i.precio
-                }))
+                productos: carrito.map(i => {
+                    const skuUp = (i.sku||'').toUpperCase();
+                    const pAsesor = MAPA_PRECIO_ASESOR[skuUp];
+                    return {
+                        sku: i.sku, descripcion: i.nombre,
+                        cantidad: i.cant,
+                        precioUnit: i.precioBase || i.precio, // precio FB (base)
+                        precioAsesor: pAsesor !== undefined ? pAsesor : undefined,
+                    };
+                })
             };
             registrarEnSheets(payloadCompleto).then(ok => {
                 if (!ok) {
